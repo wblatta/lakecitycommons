@@ -8,9 +8,11 @@ use Illuminate\Auth\Access\Response;
 
 class SkillPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    public function before(User $user): ?bool
+    {
+        return $user->role === 'admin' ? true : null;
+    }
+
     public function update(User $user, Skill $skill): bool
     {
         return $user->id === $skill->user_id;

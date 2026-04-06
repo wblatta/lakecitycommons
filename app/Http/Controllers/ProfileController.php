@@ -14,8 +14,10 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         $user = $request->user()->load(['skills.category', 'items.category']);
+        $skills = $user->skills;
+        $items = $user->items;
 
-        return view('profile.edit', compact('user'));
+        return view('profile.edit', compact('user', 'skills', 'items'));
     }
 
     public function update(ProfileUpdateRequest $request): RedirectResponse

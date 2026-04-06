@@ -8,9 +8,11 @@ use Illuminate\Auth\Access\Response;
 
 class ItemPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    public function before(User $user): ?bool
+    {
+        return $user->role === 'admin' ? true : null;
+    }
+
     public function update(User $user, Item $item): bool
     {
         return $user->id === $item->user_id;
