@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:myturn.com)",
+      "WebFetch(domain:www.timebanks.org)",
+      "WebSearch",
+      "Read(//Users/lattawb/Workspace/**)",
+      "Bash(php --version)",
+      "Bash(composer --version)",
+      "Bash(mysql --version)"
+    ]
+  }
+}
