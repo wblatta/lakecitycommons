@@ -7,7 +7,21 @@
       "Read(//Users/lattawb/Workspace/**)",
       "Bash(php --version)",
       "Bash(composer --version)",
-      "Bash(mysql --version)"
+      "Bash(mysql --version)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(npm --version)",
+      "Bash(brew list:*)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//opt/homebrew/opt/**)",
+      "Bash(composer create-project:*)",
+      "Read(//private/tmp/olyhills-scaffold/**)",
+      "Bash(cp -r . /Users/lattawb/Workspace/OlyHillsHub/ --no-preserve=all)",
+      "Bash(rsync -a --exclude='.git' /tmp/olyhills-scaffold/ /Users/lattawb/Workspace/OlyHillsHub/)",
+      "Bash(php artisan:*)",
+      "Bash(composer require:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

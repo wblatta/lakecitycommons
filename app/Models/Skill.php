@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+
+class Skill extends Model
+{
+    use HasSlug;
+
+    protected $fillable = [
+        'user_id', 'title', 'description', 'category_id',
+        'credit_type', 'custom_credit_value', 'is_available', 'slug',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_available' => 'boolean',
+            'custom_credit_value' => 'decimal:2',
+        ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()->generateSlugsFrom('title')->saveSlugsTo('slug');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function availabilitySchedules()
+    {
+        return $this->morphMany(AvailabilitySchedule::class, 'resource');
+    }
+
+    public function requests()
+    {
+        return $this->morphMany(ExchangeRequest::class, 'resource');
+    }
+}
