@@ -13,7 +13,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = [
         'name', 'email', 'password', 'avatar', 'bio',
-        'neighborhood_area', 'status', 'role', 'referred_by',
+        'neighborhood_area', 'cross_streets', 'status', 'role', 'referred_by',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -25,6 +25,23 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'time_bank_balance' => 'decimal:2',
         ];
+    }
+
+    public function avatarUrl(): string
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return '';
+    }
+
+    public function initials(): string
+    {
+        $parts = explode(' ', trim($this->name));
+        if (count($parts) >= 2) {
+            return strtoupper(substr($parts[0], 0, 1) . substr(end($parts), 0, 1));
+        }
+        return strtoupper(substr($this->name, 0, 2));
     }
 
     public function referrer()
@@ -70,6 +87,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function threadParticipations()
     {
         return $this->hasMany(ThreadParticipant::class);
+    }
+
+    public function waitlistEntries()
+    {
+        return $this->hasMany(WaitlistEntry::class);
     }
 
     public function isAdmin(): bool

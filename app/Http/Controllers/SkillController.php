@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Skill;
+use App\Models\WaitlistEntry;
+use App\Notifications\WaitlistAvailable;
 use Illuminate\Http\Request;
 
 class SkillController extends Controller
@@ -46,7 +48,41 @@ class SkillController extends Controller
     public function show(Skill $skill)
     {
         $skill->load(['user:id,name,avatar,neighborhood_area,bio', 'category']);
-        return view('skills.show', compact('skill'));
+
+        $onWaitlist = auth()->check()
+            ? WaitlistEntry::where('user_id', auth()->id())
+                ->where('resource_type', 'skill')
+                ->where('resource_id', $skill->id)
+                ->exists()
+            : false;
+
+        $waitlistCount = WaitlistEntry::where('resource_type', 'skill')
+            ->where('resource_id', $skill->id)
+            ->count();
+
+        return view('skills.show', compact('skill', 'onWaitlist', 'waitlistCount'));
+    }
+
+    public function toggle(Skill $skill)
+    {
+        $this->authorize('update', $skill);
+        $skill->update(['is_available' => !$skill->is_available]);
+
+        if ($skill->is_available) {
+            $entries = WaitlistEntry::where('resource_type', 'skill')
+                ->where('resource_id', $skill->id)
+                ->whereNull('notified_at')
+                ->with('user')
+                ->get();
+
+            foreach ($entries as $entry) {
+                $entry->user->notify(new WaitlistAvailable($skill->title, route('skills.show', $skill)));
+                $entry->update(['notified_at' => now()]);
+            }
+        }
+
+        $message = $skill->is_available ? 'Skill is now available.' : 'Skill placed on hold.';
+        return back()->with('success', $message);
     }
 
     public function edit(Skill $skill)

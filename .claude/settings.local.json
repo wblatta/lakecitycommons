@@ -21,7 +21,8 @@
       "Bash(rsync -a --exclude='.git' /tmp/olyhills-scaffold/ /Users/lattawb/Workspace/OlyHillsHub/)",
       "Bash(php artisan:*)",
       "Bash(composer require:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(php -r \"require '/Users/lattawb/Workspace/OlyHillsHub/vendor/autoload.php'; require '/Users/lattawb/Workspace/OlyHillsHub/bootstrap/app.php'; echo 'ok';\")"
     ]
   }
 }

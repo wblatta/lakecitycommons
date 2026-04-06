@@ -47,4 +47,10 @@ class Skill extends Model
     {
         return $this->morphMany(ExchangeRequest::class, 'resource');
     }
+
+    public function waitlistEntries()
+    {
+        return $this->hasMany(WaitlistEntry::class, 'resource_id')
+                    ->where('resource_type', 'skill');
+    }
 }

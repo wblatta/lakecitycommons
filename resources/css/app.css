@@ -1,3 +1,83 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body { @apply antialiased; }
+    h1, h2, h3 { @apply font-display; }
+}
+
+@layer components {
+    /* Cards */
+    .card {
+        @apply bg-white rounded-card shadow-sm border border-transparent transition-all duration-200;
+    }
+    .card-hover {
+        @apply hover:shadow-lg hover:border-forest-pale hover:-translate-y-0.5;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 bg-forest text-white font-semibold rounded-lg
+               hover:bg-forest-dark transition-colors
+               focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2
+               disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .btn-outline {
+        @apply inline-flex items-center justify-center gap-2 border-2 border-forest text-forest font-semibold rounded-lg
+               hover:bg-forest hover:text-white transition-colors
+               focus:outline-none focus:ring-2 focus:ring-forest focus:ring-offset-2;
+    }
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 text-earth-muted font-medium rounded-lg
+               hover:text-forest hover:bg-forest-pale/50 transition-colors px-3 py-2;
+    }
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 text-red-600 font-medium rounded-lg
+               hover:bg-red-50 transition-colors px-3 py-2;
+    }
+
+    /* Badges */
+    .badge {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+    }
+    .badge-available  { @apply badge bg-forest-pale text-forest; }
+    .badge-hold       { @apply badge bg-amber/20 text-amber; }
+    .badge-pending    { @apply badge bg-amber text-white; }
+    .badge-accepted   { @apply badge bg-forest-light text-white; }
+    .badge-completed  { @apply badge bg-earth text-white; }
+    .badge-declined   { @apply badge bg-red-100 text-red-700; }
+    .badge-cancelled  { @apply badge bg-gray-100 text-gray-500; }
+    .badge-gift       { @apply badge bg-emerald-100 text-emerald-700; }
+    .badge-credit     { @apply badge bg-forest-pale text-forest; }
+
+    /* Form inputs */
+    .field {
+        @apply w-full px-4 py-3 rounded-lg border border-forest-pale bg-white text-earth
+               placeholder-earth-muted transition
+               focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent;
+    }
+    .field-label {
+        @apply block text-sm font-medium text-earth mb-1.5;
+    }
+
+    /* Avatar */
+    .avatar {
+        @apply rounded-full object-cover bg-forest-pale flex items-center justify-center
+               text-forest font-bold overflow-hidden flex-shrink-0;
+    }
+
+    /* Section headers */
+    .section-title {
+        @apply font-display text-2xl font-semibold text-earth;
+    }
+
+    /* Nav link active */
+    .nav-active {
+        @apply text-forest font-semibold;
+    }
+
+    /* No scrollbar utility */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

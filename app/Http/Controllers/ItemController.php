@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\WaitlistEntry;
+use App\Notifications\WaitlistAvailable;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -55,7 +57,41 @@ class ItemController extends Controller
     public function show(Item $item)
     {
         $item->load(['user:id,name,avatar,neighborhood_area,bio', 'category']);
-        return view('items.show', compact('item'));
+
+        $onWaitlist = auth()->check()
+            ? WaitlistEntry::where('user_id', auth()->id())
+                ->where('resource_type', 'item')
+                ->where('resource_id', $item->id)
+                ->exists()
+            : false;
+
+        $waitlistCount = WaitlistEntry::where('resource_type', 'item')
+            ->where('resource_id', $item->id)
+            ->count();
+
+        return view('items.show', compact('item', 'onWaitlist', 'waitlistCount'));
+    }
+
+    public function toggle(Item $item)
+    {
+        $this->authorize('update', $item);
+        $item->update(['is_available' => !$item->is_available]);
+
+        if ($item->is_available) {
+            $entries = WaitlistEntry::where('resource_type', 'item')
+                ->where('resource_id', $item->id)
+                ->whereNull('notified_at')
+                ->with('user')
+                ->get();
+
+            foreach ($entries as $entry) {
+                $entry->user->notify(new WaitlistAvailable($item->title, route('items.show', $item)));
+                $entry->update(['notified_at' => now()]);
+            }
+        }
+
+        $message = $item->is_available ? 'Item is now available.' : 'Item placed on hold.';
+        return back()->with('success', $message);
     }
 
     public function edit(Item $item)

@@ -8,12 +8,17 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
 // Landing / public
 Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('welcome');
 })->name('home');
+
+// Public user profiles (no auth required to view)
+Route::get('/users/{user}', [UserProfileController::class, 'show'])->name('users.show');
 
 // Referral registration
 Route::middleware('referral')->group(function () {
@@ -27,14 +32,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Skills
     Route::resource('skills', SkillController::class);
+    Route::patch('/skills/{skill}/toggle', [SkillController::class, 'toggle'])->name('skills.toggle');
 
     // Items
     Route::resource('items', ItemController::class);
+    Route::patch('/items/{item}/toggle', [ItemController::class, 'toggle'])->name('items.toggle');
 
     // Referrals (invite)
     Route::get('/invite', [ReferralController::class, 'index'])->name('invite.index');
@@ -52,6 +59,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/messages/{thread}', [MessageController::class, 'store'])->name('messages.store');
     Route::get('/messages/{thread}/poll', [MessageController::class, 'poll'])->name('messages.poll');
     Route::get('/messages/unread-count', [MessageController::class, 'unreadCount'])->name('messages.unread');
+
+    // Waitlist
+    Route::post('/waitlist', [WaitlistController::class, 'store'])->name('waitlist.store');
+    Route::delete('/waitlist/{entry}', [WaitlistController::class, 'destroy'])->name('waitlist.destroy');
 });
 
 // Admin
