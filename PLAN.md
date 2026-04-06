@@ -347,6 +347,116 @@ DreamHost shared hosting provides no SLA. For a neighborhood platform this is ac
 
 ---
 
+---
+
+## Security
+
+### Authentication & Session Security
+- **Password hashing**: bcrypt via Laravel default (cost factor 12) — no change needed
+- **Rate limiting on login**: `throttle:login` middleware (5 attempts/minute per IP+email); configured in `RouteServiceProvider`
+- **"Remember me" tokens**: rotated on each use (Laravel default)
+- **Session**: `file` driver; set `SESSION_SECURE_COOKIE=true`, `SESSION_SAME_SITE=strict` in `.env`
+- **Force HTTPS**: `TrustProxies` middleware + `APP_URL=https://...`; redirect HTTP → HTTPS via DreamHost `.htaccess`
+
+### CSRF & XSS
+- All forms use `@csrf` blade directive (Breeze scaffolds this automatically)
+- Blade `{{ }}` escapes output by default — only use `{!! !!}` for trusted admin content
+- Security headers via middleware: `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`
+
+### SQL Injection
+- All queries through Eloquent or `DB::` with parameter binding — never string-interpolated raw SQL
+- Any `whereRaw()` calls must use bound parameters
+
+### Input Validation
+- All controller inputs validated via `FormRequest` classes with strict `rules()`
+- File uploads (item photos): validate MIME server-side (`mimes:jpeg,png,webp`), max 5MB, store in `storage/app/private`, serve via `storage:link`
+
+### Database Hardening
+- DreamHost DB user: **read/write only** — no `DROP`, `CREATE`, `GRANT` privileges
+- Credentials only in `.env` (never committed); rotate if exposed
+- Append-only `transactions` table already provides tamper-evident audit ledger
+
+### Password Policy
+```php
+Password::min(10)->mixedCase()->numbers()
+// Applied in RegisteredUserController and PasswordUpdateRequest
+```
+
+### Secrets Management
+- `.env` never in git (Laravel's default `.gitignore`)
+- `APP_KEY` generated on first deploy; stored in password manager
+- Do **not** rotate `APP_KEY` on a schedule on shared hosting — invalidates all sessions and encrypted values; rotate only if compromised
+
+---
+
+## UI Design
+
+### Design Language
+Organic + digital — clean, minimal, community-warm. Earthy greens and warm off-whites. Not corporate, not startup-glossy.
+
+### Color Palette
+| Token | Hex | Use |
+|---|---|---|
+| `forest` | `#2D6A4F` | Primary actions, nav active |
+| `sage` | `#52B788` | Secondary, hover states |
+| `mint` | `#B7E4C7` | Badges, highlights, accents |
+| `cream` | `#F8F9F4` | Page background |
+| `surface` | `#FFFFFF` | Cards, modals |
+| `earth` | `#1B2D24` | Primary text |
+| `muted` | `#6B7C72` | Secondary text, placeholders |
+| `amber` | `#D4A017` | Low-balance warning |
+| `danger` | `#C0392B` | Errors, destructive actions |
+
+### Typography
+- **Body**: `Inter` — humanist, readable at small sizes on mobile
+- **Headings**: `Fraunces` — organic serif, community-warm
+- Border radius: `0.5rem` default, `1rem` for cards
+
+### Tailwind Config
+```js
+// tailwind.config.js
+theme: {
+  extend: {
+    colors: {
+      forest: { DEFAULT: '#2D6A4F', light: '#52B788', pale: '#B7E4C7' },
+      earth:  { DEFAULT: '#1B2D24', muted: '#6B7C72' },
+      cream:  '#F8F9F4',
+      amber:  '#D4A017',
+    },
+    fontFamily: {
+      sans:    ['Inter', 'sans-serif'],
+      display: ['Fraunces', 'serif'],
+    },
+  }
+}
+```
+
+### Layout System
+- **Mobile-first** breakpoints: `sm` 375px → `md` 768px → `lg` 1024px
+- **Navigation**: bottom tab bar on mobile (Home, Browse, Requests, Messages, Profile); top nav on desktop
+- **Card grid**: 1-col mobile → 2-col tablet → 3-col desktop
+
+### Key Pages
+| Page | Design Notes |
+|---|---|
+| Landing / Login | Split layout: left = community SVG illustration (leaves/network), right = form |
+| Dashboard | Large credit balance widget, recent activity feed, quick-action buttons |
+| Browse | Filterable card grid; category chips scrollable across top |
+| Skill/Item Detail | Hero image, availability calendar, "Request" CTA |
+| Availability Calendar | Alpine.js grid; green = available, gray = blocked |
+| Request Flow | Step indicator (1 Create → 2 Accept → 3 Confirm), inline thread |
+| Messages | Thread list + chat bubble layout (WhatsApp pattern) |
+| Profile | Avatar, neighborhood badge, credit balance, listing grid |
+| Admin Dashboard | Data table, status badges, suspend/activate actions |
+
+### Mobile UX Rules
+- Touch targets ≥ 44px
+- No hover-only interactions
+- Single-column forms with large inputs and inline error states
+- Iconography: Heroicons (Tailwind-compatible)
+
+---
+
 ## Verification
 
 End-to-end test checklist before launch:
