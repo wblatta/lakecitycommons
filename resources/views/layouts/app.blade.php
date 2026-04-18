@@ -49,10 +49,23 @@
             </a>
 
             @if(auth()->user()->isAdmin())
-                <a href="{{ route('admin.members.index') }}"
-                   class="px-4 py-5 border-b-2 transition-colors {{ request()->routeIs('admin.*') ? 'border-forest text-forest font-semibold' : 'border-transparent text-earth-muted hover:text-forest hover:border-forest-pale' }}">
-                    Admin
-                </a>
+                <div class="relative group" x-data="{ open: false }" @mouseenter="open=true" @mouseleave="open=false">
+                    <button class="px-4 py-5 border-b-2 transition-colors flex items-center gap-1 {{ request()->routeIs('admin.*') ? 'border-forest text-forest font-semibold' : 'border-transparent text-earth-muted hover:text-forest hover:border-forest-pale' }}">
+                        Admin
+                        <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div x-show="open" x-cloak
+                         class="absolute right-0 top-full w-44 bg-white rounded-lg shadow-lg border border-forest-pale/60 py-1 z-50">
+                        <a href="{{ route('admin.members.index') }}"
+                           class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.members.*') ? 'text-forest font-semibold' : '' }}">
+                            Members
+                        </a>
+                        <a href="{{ route('admin.posts.index') }}"
+                           class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.posts.*') ? 'text-forest font-semibold' : '' }}">
+                            News Posts
+                        </a>
+                    </div>
+                </div>
             @endif
         </div>
 

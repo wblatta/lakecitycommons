@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
+use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExchangeRequestController;
 use App\Http\Controllers\ItemController;
@@ -70,6 +71,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/members', [AdminMemberController::class, 'index'])->name('members.index');
     Route::patch('/members/{user}/status', [AdminMemberController::class, 'updateStatus'])->name('members.status');
     Route::post('/members/{user}/adjust-credits', [AdminMemberController::class, 'adjustCredits'])->name('members.credits');
+
+    Route::resource('posts', AdminPostController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
