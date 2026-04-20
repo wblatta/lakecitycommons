@@ -24,7 +24,8 @@ Route::get('/users/{user}', [UserProfileController::class, 'show'])->name('users
 // Referral registration
 Route::middleware('referral')->group(function () {
     Route::get('/register/{token}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
-    Route::post('/register/{token}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store']);
+    Route::post('/register/{token}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])
+        ->middleware('throttle:5,1');
 });
 
 // Authenticated + active user routes
@@ -58,7 +59,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{thread}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{thread}', [MessageController::class, 'store'])->name('messages.store');
-    Route::get('/messages/{thread}/poll', [MessageController::class, 'poll'])->name('messages.poll');
+    Route::get('/messages/{thread}/poll', [MessageController::class, 'poll'])
+        ->middleware('throttle:message-poll')
+        ->name('messages.poll');
     Route::get('/messages/unread-count', [MessageController::class, 'unreadCount'])->name('messages.unread');
 
     // Waitlist
