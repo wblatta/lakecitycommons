@@ -18,9 +18,6 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : view('welcome');
 })->name('home');
 
-// Public user profiles (no auth required to view)
-Route::get('/users/{user}', [UserProfileController::class, 'show'])->name('users.show');
-
 // Referral registration
 Route::middleware('referral')->group(function () {
     Route::get('/register/{token}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
@@ -31,6 +28,9 @@ Route::middleware('referral')->group(function () {
 // Authenticated + active user routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    // Member profiles
+    Route::get('/users/{user}', [UserProfileController::class, 'show'])->name('users.show');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

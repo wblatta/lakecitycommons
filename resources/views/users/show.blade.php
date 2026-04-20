@@ -17,7 +17,7 @@
                 @if($user->neighborhood_area)
                     <p class="text-forest-pale mt-0.5 text-sm">
                         {{ $user->neighborhood_area }}
-                        @if($user->cross_streets)
+                        @if($canSeeCrossStreets && $user->cross_streets)
                             &middot; near {{ $user->cross_streets }}
                         @endif
                     </p>

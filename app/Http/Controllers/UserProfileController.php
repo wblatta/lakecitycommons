@@ -13,8 +13,10 @@ class UserProfileController extends Controller
             'items'  => fn($q) => $q->with('category')->where('is_available', true),
         ]);
 
-        $canMessage = auth()->check() && auth()->id() !== $user->id;
+        $viewer = auth()->user();
+        $canSeeCrossStreets = $viewer->id == $user->id || $viewer->isAdmin();
+        $canMessage = auth()->id() !== $user->id;
 
-        return view('users.show', compact('user', 'canMessage'));
+        return view('users.show', compact('user', 'canMessage', 'canSeeCrossStreets'));
     }
 }
