@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminAuditLog;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -10,10 +11,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with('user:id,name')
-            ->latest()
-            ->paginate(20);
-
+        $posts = Post::with('user:id,name')->latest()->paginate(20);
         return view('admin.posts.index', compact('posts'));
     }
 
@@ -30,11 +28,18 @@ class PostController extends Controller
             'published' => 'boolean',
         ]);
 
-        Post::create([
+        $post = Post::create([
             'user_id'      => $request->user()->id,
             'title'        => $data['title'],
             'body'         => $data['body'],
             'published_at' => $request->boolean('published') ? now() : null,
+        ]);
+
+        AdminAuditLog::create([
+            'admin_id'   => $request->user()->id,
+            'action'     => 'post_create',
+            'payload'    => ['post_id' => $post->id, 'title' => $post->title],
+            'ip_address' => $request->ip(),
         ]);
 
         return redirect()->route('admin.posts.index')
@@ -65,9 +70,19 @@ class PostController extends Controller
         return redirect()->route('admin.posts.index')->with('success', 'Post updated.');
     }
 
-    public function destroy(Post $post)
+    public function destroy(Request $request, Post $post)
     {
+        $title = $post->title;
+        $postId = $post->id;
         $post->delete();
+
+        AdminAuditLog::create([
+            'admin_id'   => $request->user()->id,
+            'action'     => 'post_delete',
+            'payload'    => ['post_id' => $postId, 'title' => $title],
+            'ip_address' => $request->ip(),
+        ]);
+
         return back()->with('success', 'Post deleted.');
     }
 }

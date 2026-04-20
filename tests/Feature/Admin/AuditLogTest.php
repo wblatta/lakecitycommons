@@ -86,4 +86,31 @@ class AuditLogTest extends TestCase
         $response->assertSessionHasErrors('amount');
         $this->assertDatabaseMissing('admin_audit_logs', ['action' => 'credit_adjustment']);
     }
+
+    public function test_post_create_is_logged(): void
+    {
+        $admin = User::factory()->create(['status' => 'active', 'role' => 'admin']);
+
+        $this->actingAs($admin)->post('/admin/posts', [
+            'title'     => 'Test Post',
+            'body'      => 'Some body content.',
+            'published' => false,
+        ]);
+
+        $log = AdminAuditLog::where('action', 'post_create')->first();
+        $this->assertNotNull($log);
+        $this->assertEquals('Test Post', $log->payload['title']);
+    }
+
+    public function test_post_delete_is_logged(): void
+    {
+        $admin = User::factory()->create(['status' => 'active', 'role' => 'admin']);
+        $post = \App\Models\Post::create(['user_id' => $admin->id, 'title' => 'Delete Me', 'body' => 'Body content.']);
+
+        $this->actingAs($admin)->delete("/admin/posts/{$post->id}");
+
+        $log = AdminAuditLog::where('action', 'post_delete')->first();
+        $this->assertNotNull($log);
+        $this->assertEquals('Delete Me', $log->payload['title']);
+    }
 }
