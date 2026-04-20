@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ExchangeRequest;
 use App\Models\Item;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class RequestService
 {
@@ -33,7 +34,10 @@ class RequestService
                 throw new \RuntimeException('Only item requests can be marked returned.');
             }
             $item = Item::find($request->resource_id);
-            if (!$item || $item->offer_type !== 'lend') {
+            if (!$item) {
+                throw new \RuntimeException("Item #{$request->resource_id} not found.");
+            }
+            if ($item->offer_type !== 'lend') {
                 throw new \RuntimeException('Only lend items can be marked returned.');
             }
             $request->update(['status' => 'returned']);
@@ -57,18 +61,20 @@ class RequestService
         $request->refresh();
 
         if ($request->isBothConfirmed() && $request->status !== 'completed') {
-            $creditService->transfer($request);
-            $request->update(['status' => 'completed', 'completed_at' => now()]);
+            DB::transaction(function () use ($request, $creditService) {
+                $creditService->transfer($request);
+                $request->update(['status' => 'completed', 'completed_at' => now()]);
 
-            if ($request->resource_type === 'item') {
-                $item = Item::find($request->resource_id);
-                if ($item) {
-                    $item->update([
-                        'is_available' => false,
-                        'is_archived'  => $item->offer_type === 'gift',
-                    ]);
+                if ($request->resource_type === 'item') {
+                    $item = Item::find($request->resource_id);
+                    if ($item) {
+                        $item->update([
+                            'is_available' => false,
+                            'is_archived'  => $item->offer_type === 'gift',
+                        ]);
+                    }
                 }
-            }
+            });
         }
     }
 }
