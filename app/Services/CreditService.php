@@ -34,7 +34,12 @@ class CreditService
         DB::transaction(function () use ($request) {
             $amount = (float) $request->credit_value;
 
-            if (!$this->canAfford($request->requester_id, $amount)) {
+            $balance = DB::table('users')
+                ->where('id', $request->requester_id)
+                ->lockForUpdate()
+                ->value('time_bank_balance');
+
+            if (($balance - $amount) < self::GRACE_THRESHOLD) {
                 throw new \RuntimeException('Insufficient balance for credit transfer.');
             }
 
