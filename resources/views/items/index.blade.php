@@ -68,7 +68,7 @@
                         <div class="bg-white rounded-card shadow-sm border border-gray-100 p-4 flex items-center justify-between gap-4 opacity-60">
                             <div>
                                 <p class="font-medium text-earth text-sm">{{ $item->title }}</p>
-                                <p class="text-xs text-earth-muted mt-0.5">{{ $item->category->name }} &middot; Gifted {{ $item->updated_at->diffForHumans() }}</p>
+                                <p class="text-xs text-earth-muted mt-0.5">{{ $item->category->name }} &middot; Archived {{ $item->updated_at->diffForHumans() }}</p>
                             </div>
                             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">Archived</span>
                         </div>

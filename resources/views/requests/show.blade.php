@@ -5,7 +5,7 @@
         <a href="{{ route('requests.index') }}" class="text-forest text-sm hover:underline mb-4 inline-block">&larr; Back to requests</a>
 
         @php
-            $req = $exchangeRequest;
+            $req = $request;
             $isOwner = auth()->id() === $req->owner_id;
             $isRequester = auth()->id() === $req->requester_id;
             $statusColors = ['pending'=>'bg-amber text-white','accepted'=>'bg-forest-light text-white','in_progress'=>'bg-forest text-white','completed'=>'bg-earth text-white','returned'=>'bg-gray-200 text-gray-600','declined'=>'bg-red-100 text-red-700','cancelled'=>'bg-gray-100 text-gray-500'];
@@ -79,8 +79,7 @@
                 @endif
 
                 @if($isOwner && $req->status === 'completed' && $req->resource_type === 'item')
-                    @php $lendItem = \App\Models\Item::find($req->resource_id); @endphp
-                    @if($lendItem && $lendItem->offer_type === 'lend')
+                    @if($resourceItem && $resourceItem->offer_type === 'lend')
                         <form method="POST" action="{{ route('requests.transition', $req) }}" class="inline">
                             @csrf <input type="hidden" name="status" value="returned">
                             <button class="px-4 py-2 bg-forest-pale text-forest text-sm font-semibold rounded-lg hover:bg-forest hover:text-white transition-colors">

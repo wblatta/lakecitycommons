@@ -81,7 +81,12 @@ class ExchangeRequestController extends Controller
     {
         $this->authorize('view', $request);
         $request->load(['requester:id,name', 'owner:id,name', 'thread.messages.sender:id,name,avatar']);
-        return view('requests.show', ['exchangeRequest' => $request]);
+
+        $resourceItem = $request->resource_type === 'item'
+            ? Item::find($request->resource_id)
+            : null;
+
+        return view('requests.show', compact('request', 'resourceItem'));
     }
 
     public function confirm(Request $request, ExchangeRequest $exchangeRequest)
