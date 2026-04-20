@@ -163,17 +163,18 @@ class OfferTypeTest extends TestCase
 
     public function test_archived_items_excluded_from_browse(): void
     {
-        $user = User::factory()->create(['status' => 'active']);
+        $owner = User::factory()->create(['status' => 'active']);
+        $browser = User::factory()->create(['status' => 'active']);
         $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
 
         Item::create([
-            'user_id' => $user->id, 'title' => 'Archived Lawnmower', 'description' => 'desc',
+            'user_id' => $owner->id, 'title' => 'Archived Lawnmower', 'description' => 'desc',
             'category_id' => $category->id, 'condition' => 'good',
             'offer_type' => 'gift', 'credit_type' => 'gift',
             'is_available' => false, 'is_archived' => true,
         ]);
 
-        $response = $this->actingAs($user)->get('/items');
+        $response = $this->actingAs($browser)->get('/items');
         $response->assertOk();
         $response->assertDontSee('Archived Lawnmower');
     }
@@ -222,6 +223,42 @@ class OfferTypeTest extends TestCase
         $response = $this->actingAs($requester)->get("/requests/{$req->id}");
         $response->assertOk();
         $response->assertDontSee('Mark as Returned');
+    }
+
+    public function test_owner_sees_their_archived_items_in_browse(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        Item::create([
+            'user_id' => $owner->id, 'title' => 'My Old Lawnmower', 'description' => 'desc',
+            'category_id' => $category->id, 'condition' => 'good',
+            'offer_type' => 'gift', 'credit_type' => 'gift',
+            'is_available' => false, 'is_archived' => true,
+        ]);
+
+        $response = $this->actingAs($owner)->get('/items');
+        $response->assertOk();
+        $response->assertSee('My Old Lawnmower');
+        $response->assertSee('Archived');
+    }
+
+    public function test_other_user_cannot_see_archived_items(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $other = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        Item::create([
+            'user_id' => $owner->id, 'title' => 'My Old Lawnmower', 'description' => 'desc',
+            'category_id' => $category->id, 'condition' => 'good',
+            'offer_type' => 'gift', 'credit_type' => 'gift',
+            'is_available' => false, 'is_archived' => true,
+        ]);
+
+        $response = $this->actingAs($other)->get('/items');
+        $response->assertOk();
+        $response->assertDontSee('My Old Lawnmower');
     }
 
     public function test_toggle_blocked_when_active_lend_in_progress(): void

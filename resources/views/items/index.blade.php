@@ -59,5 +59,22 @@
             </div>
             <div class="mt-8">{{ $items->links() }}</div>
         @endif
+
+        @if($archivedItems->isNotEmpty())
+            <div class="mt-12">
+                <h2 class="font-display text-lg font-semibold text-earth-muted mb-4">Your Archived Items</h2>
+                <div class="space-y-3">
+                    @foreach($archivedItems as $item)
+                        <div class="bg-white rounded-card shadow-sm border border-gray-100 p-4 flex items-center justify-between gap-4 opacity-60">
+                            <div>
+                                <p class="font-medium text-earth text-sm">{{ $item->title }}</p>
+                                <p class="text-xs text-earth-muted mt-0.5">{{ $item->category->name }} &middot; Gifted {{ $item->updated_at->diffForHumans() }}</p>
+                            </div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">Archived</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 </x-app-layout>
