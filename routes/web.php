@@ -76,6 +76,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/members/{user}/adjust-credits', [AdminMemberController::class, 'adjustCredits'])->name('members.credits');
 
     Route::resource('posts', AdminPostController::class)->except(['show']);
+    Route::get('/audit-log', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log.index');
 });
 
 require __DIR__.'/auth.php';
