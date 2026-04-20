@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreItemRequest;
+use App\Http\Requests\UpdateItemRequest;
 use App\Models\Category;
+use App\Models\ExchangeRequest;
 use App\Models\Item;
 use App\Models\WaitlistEntry;
 use App\Notifications\WaitlistAvailable;
@@ -14,13 +17,22 @@ class ItemController extends Controller
     {
         $items = Item::with(['user:id,name,neighborhood_area', 'category'])
             ->where('is_available', true)
+            ->where('is_archived', false)
             ->when($request->category, fn($q, $c) => $q->whereHas('category', fn($q2) => $q2->where('slug', $c)))
             ->latest()
             ->paginate(12);
 
         $categories = Category::whereIn('type', ['item', 'both'])->orderBy('name')->get();
 
-        return view('items.index', compact('items', 'categories'));
+        $archivedItems = auth()->check()
+            ? Item::with('category')
+                ->where('user_id', auth()->id())
+                ->where('is_archived', true)
+                ->latest()
+                ->get()
+            : collect();
+
+        return view('items.index', compact('items', 'categories', 'archivedItems'));
     }
 
     public function create()
@@ -29,20 +41,16 @@ class ItemController extends Controller
         return view('items.create', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(StoreItemRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:2000',
-            'category_id' => 'required|exists:categories,id',
-            'condition' => 'required|in:excellent,good,fair,poor',
-            'credit_type' => 'required|in:gift,time_equal,custom',
-            'custom_credit_value' => 'required_if:credit_type,custom|nullable|numeric|min:0',
-            'photos' => 'nullable|array|max:5',
-            'photos.*' => 'image|mimes:jpeg,png,webp|max:5120',
-        ]);
-
+        $data = $request->validated();
         $data['user_id'] = $request->user()->id;
+
+        if ($data['offer_type'] === 'gift') {
+            $data['credit_type'] = 'gift';
+            $data['custom_credit_value'] = null;
+        }
+
         $item = Item::create($data);
 
         if ($request->hasFile('photos')) {
@@ -75,6 +83,16 @@ class ItemController extends Controller
     public function toggle(Item $item)
     {
         $this->authorize('update', $item);
+
+        $activeLend = ExchangeRequest::where('resource_type', 'item')
+            ->where('resource_id', $item->id)
+            ->whereIn('status', ['in_progress', 'completed'])
+            ->exists();
+
+        if ($activeLend) {
+            return back()->with('error', 'This item is currently lent out and cannot be toggled until it is returned.');
+        }
+
         $item->update(['is_available' => !$item->is_available]);
 
         if ($item->is_available) {
@@ -101,19 +119,16 @@ class ItemController extends Controller
         return view('items.edit', compact('item', 'categories'));
     }
 
-    public function update(Request $request, Item $item)
+    public function update(UpdateItemRequest $request, Item $item)
     {
         $this->authorize('update', $item);
 
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string|max:2000',
-            'category_id' => 'required|exists:categories,id',
-            'condition' => 'required|in:excellent,good,fair,poor',
-            'credit_type' => 'required|in:gift,time_equal,custom',
-            'custom_credit_value' => 'required_if:credit_type,custom|nullable|numeric|min:0',
-            'is_available' => 'boolean',
-        ]);
+        $data = $request->validated();
+
+        if ($data['offer_type'] === 'gift') {
+            $data['credit_type'] = 'gift';
+            $data['custom_credit_value'] = null;
+        }
 
         $item->update($data);
 

@@ -139,4 +139,66 @@ class OfferTypeTest extends TestCase
         $this->assertFalse($item->is_available);
         $this->assertFalse($item->is_archived);
     }
+
+    public function test_store_gift_item_forces_credit_type_to_gift(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        $response = $this->actingAs($user)->post('/items', [
+            'title'       => 'My Lawnmower',
+            'description' => 'A lawnmower.',
+            'category_id' => $category->id,
+            'condition'   => 'good',
+            'offer_type'  => 'gift',
+            // deliberately omit credit_type — should be forced to 'gift'
+        ]);
+
+        $response->assertRedirect();
+        $item = Item::where('title', 'My Lawnmower')->first();
+        $this->assertNotNull($item);
+        $this->assertEquals('gift', $item->offer_type);
+        $this->assertEquals('gift', $item->credit_type);
+    }
+
+    public function test_archived_items_excluded_from_browse(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        Item::create([
+            'user_id' => $user->id, 'title' => 'Archived Lawnmower', 'description' => 'desc',
+            'category_id' => $category->id, 'condition' => 'good',
+            'offer_type' => 'gift', 'credit_type' => 'gift',
+            'is_available' => false, 'is_archived' => true,
+        ]);
+
+        $response = $this->actingAs($user)->get('/items');
+        $response->assertOk();
+        $response->assertDontSee('Archived Lawnmower');
+    }
+
+    public function test_toggle_blocked_when_active_lend_in_progress(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $requester = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Active Lend', 'description' => 'desc',
+            'category_id' => $category->id, 'condition' => 'good',
+            'offer_type' => 'lend', 'credit_type' => 'gift', 'is_available' => false,
+        ]);
+        ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'in_progress',
+        ]);
+
+        $response = $this->actingAs($owner)->patch("/items/{$item->slug}/toggle");
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+        $this->assertFalse($item->fresh()->is_available);
+    }
 }
