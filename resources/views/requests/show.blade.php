@@ -8,7 +8,7 @@
             $req = $exchangeRequest;
             $isOwner = auth()->id() === $req->owner_id;
             $isRequester = auth()->id() === $req->requester_id;
-            $statusColors = ['pending'=>'bg-amber text-white','accepted'=>'bg-forest-light text-white','in_progress'=>'bg-forest text-white','completed'=>'bg-earth text-white','declined'=>'bg-red-100 text-red-700','cancelled'=>'bg-gray-100 text-gray-500'];
+            $statusColors = ['pending'=>'bg-amber text-white','accepted'=>'bg-forest-light text-white','in_progress'=>'bg-forest text-white','completed'=>'bg-earth text-white','returned'=>'bg-gray-200 text-gray-600','declined'=>'bg-red-100 text-red-700','cancelled'=>'bg-gray-100 text-gray-500'];
         @endphp
 
         <div class="bg-white rounded-card shadow-sm p-6 mb-5">
@@ -76,6 +76,18 @@
                         @csrf <input type="hidden" name="status" value="cancelled">
                         <button class="px-4 py-2 text-earth-muted text-sm font-medium hover:text-earth transition-colors">Cancel</button>
                     </form>
+                @endif
+
+                @if($isOwner && $req->status === 'completed' && $req->resource_type === 'item')
+                    @php $lendItem = \App\Models\Item::find($req->resource_id); @endphp
+                    @if($lendItem && $lendItem->offer_type === 'lend')
+                        <form method="POST" action="{{ route('requests.transition', $req) }}" class="inline">
+                            @csrf <input type="hidden" name="status" value="returned">
+                            <button class="px-4 py-2 bg-forest-pale text-forest text-sm font-semibold rounded-lg hover:bg-forest hover:text-white transition-colors">
+                                Mark as Returned
+                            </button>
+                        </form>
+                    @endif
                 @endif
             </div>
         </div>

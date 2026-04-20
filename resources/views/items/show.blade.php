@@ -62,9 +62,14 @@
                     <div>
                         <p class="text-xs text-earth-muted font-medium uppercase tracking-wide mb-1">Credit</p>
                         <p class="font-semibold text-earth">
-                            @if($item->credit_type === 'gift') Free (gift)
-                            @elseif($item->credit_type === 'time_equal') 1 hour = 1 hour
-                            @else {{ number_format($item->custom_credit_value, 1) }} hrs
+                            @if($item->offer_type === 'gift')
+                                Gift (free, keep it)
+                            @elseif($item->credit_type === 'gift')
+                                Free to borrow
+                            @elseif($item->credit_type === 'time_equal')
+                                1 hour = 1 credit
+                            @else
+                                {{ number_format($item->custom_credit_value, 1) }} credits
                             @endif
                         </p>
                     </div>

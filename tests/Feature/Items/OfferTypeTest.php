@@ -178,6 +178,52 @@ class OfferTypeTest extends TestCase
         $response->assertDontSee('Archived Lawnmower');
     }
 
+    public function test_owner_sees_mark_as_returned_button_for_lend_item_at_completed(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $requester = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Lend Ladder', 'description' => 'desc',
+            'category_id' => $category->id, 'condition' => 'good',
+            'offer_type' => 'lend', 'credit_type' => 'gift', 'is_available' => false,
+        ]);
+        $req = ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'completed',
+        ]);
+
+        $response = $this->actingAs($owner)->get("/requests/{$req->id}");
+        $response->assertOk();
+        $response->assertSee('Mark as Returned');
+    }
+
+    public function test_requester_does_not_see_mark_as_returned_button(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $requester = User::factory()->create(['status' => 'active']);
+        $category = \App\Models\Category::first() ?? \App\Models\Category::create(['name' => 'Other', 'type' => 'both', 'slug' => 'other']);
+
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Lend Ladder', 'description' => 'desc',
+            'category_id' => $category->id, 'condition' => 'good',
+            'offer_type' => 'lend', 'credit_type' => 'gift', 'is_available' => false,
+        ]);
+        $req = ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'completed',
+        ]);
+
+        $response = $this->actingAs($requester)->get("/requests/{$req->id}");
+        $response->assertOk();
+        $response->assertDontSee('Mark as Returned');
+    }
+
     public function test_toggle_blocked_when_active_lend_in_progress(): void
     {
         $owner = User::factory()->create(['status' => 'active']);
