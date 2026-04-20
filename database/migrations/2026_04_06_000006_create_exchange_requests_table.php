@@ -17,7 +17,7 @@ return new class extends Migration
             $table->dateTime('proposed_datetime');
             $table->decimal('duration_hours', 5, 2)->nullable();
             $table->text('message')->nullable();
-            $table->enum('status', ['pending', 'accepted', 'in_progress', 'completed', 'declined', 'cancelled'])
+            $table->enum('status', ['pending', 'accepted', 'in_progress', 'completed', 'declined', 'cancelled', 'returned'])
                 ->default('pending');
             $table->enum('credit_type', ['gift', 'time_equal', 'custom']);
             $table->decimal('credit_value', 8, 2);

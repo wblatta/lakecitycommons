@@ -1,0 +1,142 @@
+<?php
+
+namespace Tests\Feature\Items;
+
+use App\Models\ExchangeRequest;
+use App\Models\Item;
+use App\Models\User;
+use App\Services\CreditService;
+use App\Services\RequestService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class OfferTypeTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private RequestService $service;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->service = app(RequestService::class);
+        \App\Models\Category::create(['name' => 'General', 'type' => 'item']);
+    }
+
+    private function makeLendRequest(float $balance = 5.0): ExchangeRequest
+    {
+        $owner = User::factory()->create(['status' => 'active', 'time_bank_balance' => 0.0]);
+        $requester = User::factory()->create(['status' => 'active', 'time_bank_balance' => $balance]);
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Test Item', 'description' => 'desc',
+            'category_id' => \App\Models\Category::first()?->id ?? 1,
+            'condition' => 'good', 'offer_type' => 'lend', 'credit_type' => 'gift',
+            'is_available' => true,
+        ]);
+        return ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'completed',
+        ]);
+    }
+
+    private function makeGiftRequest(): ExchangeRequest
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $requester = User::factory()->create(['status' => 'active']);
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Gift Item', 'description' => 'desc',
+            'category_id' => \App\Models\Category::first()?->id ?? 1,
+            'condition' => 'good', 'offer_type' => 'gift', 'credit_type' => 'gift',
+            'is_available' => true,
+        ]);
+        return ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'in_progress',
+            'requester_confirmed_at' => now(), 'owner_confirmed_at' => now(),
+        ]);
+    }
+
+    public function test_lend_item_can_transition_completed_to_returned(): void
+    {
+        $req = $this->makeLendRequest();
+        $owner = User::find($req->owner_id);
+
+        $this->service->transition($req, 'returned', $owner);
+
+        $this->assertEquals('returned', $req->fresh()->status);
+    }
+
+    public function test_returned_transition_makes_item_available_again(): void
+    {
+        $req = $this->makeLendRequest();
+        $item = Item::find($req->resource_id);
+        $item->update(['is_available' => false]);
+        $owner = User::find($req->owner_id);
+
+        $this->service->transition($req, 'returned', $owner);
+
+        $this->assertTrue($item->fresh()->is_available);
+    }
+
+    public function test_gift_item_cannot_transition_to_returned(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $requester = User::factory()->create(['status' => 'active']);
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Gift', 'description' => 'desc',
+            'category_id' => \App\Models\Category::first()?->id ?? 1,
+            'condition' => 'good', 'offer_type' => 'gift', 'credit_type' => 'gift',
+            'is_available' => false,
+        ]);
+        $req = ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'completed',
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->service->transition($req, 'returned', $owner);
+    }
+
+    public function test_completing_gift_item_archives_it(): void
+    {
+        $req = $this->makeGiftRequest();
+        $owner = User::find($req->owner_id);
+
+        $this->service->confirmCompletion($req, $owner, app(CreditService::class));
+
+        $item = Item::find($req->resource_id);
+        $this->assertTrue($item->is_archived);
+        $this->assertFalse($item->is_available);
+    }
+
+    public function test_completing_lend_item_makes_it_unavailable_but_not_archived(): void
+    {
+        $owner = User::factory()->create(['status' => 'active']);
+        $requester = User::factory()->create(['status' => 'active']);
+        $item = Item::create([
+            'user_id' => $owner->id, 'title' => 'Lend Item', 'description' => 'desc',
+            'category_id' => \App\Models\Category::first()?->id ?? 1,
+            'condition' => 'good', 'offer_type' => 'lend', 'credit_type' => 'gift',
+            'is_available' => true,
+        ]);
+        $req = ExchangeRequest::create([
+            'requester_id' => $requester->id, 'owner_id' => $owner->id,
+            'resource_type' => 'item', 'resource_id' => $item->id,
+            'proposed_datetime' => now()->addDay(),
+            'credit_type' => 'gift', 'credit_value' => 0.0, 'status' => 'in_progress',
+            'requester_confirmed_at' => now(), 'owner_confirmed_at' => now(),
+        ]);
+
+        $this->service->confirmCompletion($req, $owner, app(CreditService::class));
+
+        $item->refresh();
+        $this->assertFalse($item->is_available);
+        $this->assertFalse($item->is_archived);
+    }
+}
