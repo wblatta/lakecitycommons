@@ -44,23 +44,54 @@
                 </div>
             </div>
 
-            <div x-data="{ creditType: '{{ old('credit_type', 'gift') }}' }">
-                <label class="block text-sm font-medium text-earth mb-2">Credit Type</label>
-                <div class="grid grid-cols-3 gap-3">
-                    @foreach(['gift' => 'Gift (free)', 'time_equal' => '1 hr = 1 hr', 'custom' => 'Custom rate'] as $value => $label)
+            <div x-data="{ offerType: '{{ old('offer_type', 'lend') }}', creditType: '{{ old('credit_type', 'gift') }}' }">
+                <label class="block text-sm font-medium text-earth mb-2">How are you offering this?</label>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="offer_type" value="lend" x-model="offerType" class="sr-only">
+                        <div :class="offerType === 'lend' ? 'border-forest bg-forest-pale text-forest' : 'border-forest-pale text-earth-muted'"
+                             class="border-2 rounded-lg p-4 transition-colors">
+                            <p class="font-semibold text-sm">Lend</p>
+                            <p class="text-xs mt-0.5 opacity-70">I want it back</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="offer_type" value="gift" x-model="offerType" class="sr-only">
+                        <div :class="offerType === 'gift' ? 'border-forest bg-forest-pale text-forest' : 'border-forest-pale text-earth-muted'"
+                             class="border-2 rounded-lg p-4 transition-colors">
+                            <p class="font-semibold text-sm">Gift</p>
+                            <p class="text-xs mt-0.5 opacity-70">Keep it, it's yours</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div x-show="offerType === 'lend'" x-cloak>
+                    <label class="block text-sm font-medium text-earth mb-2">Exchange rate</label>
+                    <div class="grid grid-cols-3 gap-3">
                         <label class="cursor-pointer">
-                            <input type="radio" name="credit_type" value="{{ $value }}" x-model="creditType" class="sr-only">
-                            <div :class="creditType === '{{ $value }}' ? 'border-forest bg-forest-pale text-forest' : 'border-forest-pale text-earth-muted'"
-                                 class="border-2 rounded-lg p-3 text-center text-sm font-medium transition-colors">
-                                {{ $label }}
-                            </div>
+                            <input type="radio" name="credit_type" value="gift" x-model="creditType" class="sr-only">
+                            <div :class="creditType === 'gift' ? 'border-forest bg-forest-pale text-forest' : 'border-forest-pale text-earth-muted'"
+                                 class="border-2 rounded-lg p-3 text-center text-sm font-medium transition-colors">Free</div>
                         </label>
-                    @endforeach
+                        <label class="cursor-pointer">
+                            <input type="radio" name="credit_type" value="time_equal" x-model="creditType" class="sr-only">
+                            <div :class="creditType === 'time_equal' ? 'border-forest bg-forest-pale text-forest' : 'border-forest-pale text-earth-muted'"
+                                 class="border-2 rounded-lg p-3 text-center text-sm font-medium transition-colors">Time</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="credit_type" value="custom" x-model="creditType" class="sr-only">
+                            <div :class="creditType === 'custom' ? 'border-forest bg-forest-pale text-forest' : 'border-forest-pale text-earth-muted'"
+                                 class="border-2 rounded-lg p-3 text-center text-sm font-medium transition-colors">Custom</div>
+                        </label>
+                    </div>
+                    <div x-show="creditType === 'custom'" x-cloak class="mt-3">
+                        <input type="number" name="custom_credit_value" step="0.25" min="0" placeholder="Hours"
+                               value="{{ old('custom_credit_value') }}"
+                               class="w-40 px-4 py-3 rounded-lg border border-forest-pale focus:outline-none focus:ring-2 focus:ring-forest">
+                    </div>
                 </div>
-                <div x-show="creditType === 'custom'" x-cloak class="mt-3">
-                    <input type="number" name="custom_credit_value" step="0.25" min="0" placeholder="Hours"
-                           class="w-40 px-4 py-3 rounded-lg border border-forest-pale focus:outline-none focus:ring-2 focus:ring-forest">
-                </div>
+                @error('offer_type')<p class="text-red-600 text-xs mt-1">{{ $message }}</p>@enderror
+                @error('credit_type')<p class="text-red-600 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div>
