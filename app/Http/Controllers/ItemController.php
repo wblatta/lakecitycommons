@@ -29,6 +29,7 @@ class ItemController extends Controller
                 ->where('user_id', auth()->id())
                 ->where('is_archived', true)
                 ->latest()
+                ->limit(20)
                 ->get()
             : collect();
 
@@ -84,6 +85,8 @@ class ItemController extends Controller
     {
         $this->authorize('update', $item);
 
+        // Block toggle while item is lent out: 'completed' means borrower has it but
+        // hasn't been marked returned yet — availability is restored by RequestService::transition.
         $activeLend = ExchangeRequest::where('resource_type', 'item')
             ->where('resource_id', $item->id)
             ->whereIn('status', ['in_progress', 'completed'])
