@@ -320,6 +320,7 @@ DreamHost shared hosting provides no SLA. For a neighborhood platform this is ac
 
 ## DreamHost Deployment Checklist
 
+0. Run `php artisan config:check` — must exit 0 before proceeding
 1. Set PHP version to 8.2+ in panel
 2. Set domain web root to `your-project/public`
 3. Set `DB_HOST=mysql.yourdomain.com` in `.env`
