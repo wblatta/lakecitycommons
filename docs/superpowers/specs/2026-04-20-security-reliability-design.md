@@ -52,7 +52,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:
 ```
 
-**CSP rationale:** `unsafe-inline` is required because Alpine.js uses inline event handlers and Blade templates use inline `<style>` blocks. The policy still blocks external script injection (the primary XSS escalation path). No CDN sources are needed — fonts and icons are self-hosted via npm/Vite.
+**CSP rationale:** `unsafe-inline` is required because Alpine.js uses inline event handlers and Blade templates use inline `<style>` blocks. `unsafe-eval` is required because Alpine.js v3 dynamically evaluates expressions at runtime — without it, all Alpine reactivity silently breaks. The policy still blocks external script injection (the primary XSS escalation path). No CDN sources are needed — fonts and icons are self-hosted via npm/Vite.
 
 No configuration needed — headers are hardcoded in the middleware. If CSP needs loosening for a specific feature, it's a one-line edit.
 

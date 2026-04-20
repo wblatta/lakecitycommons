@@ -16,11 +16,12 @@ class SecurityHeadersTest extends TestCase
         $response->assertHeader('Content-Security-Policy');
     }
 
-    public function test_csp_blocks_external_default_src(): void
+    public function test_csp_contains_required_directives(): void
     {
         $response = $this->get('/');
         $csp = $response->headers->get('Content-Security-Policy');
 
         $this->assertStringContainsString("default-src 'self'", $csp);
+        $this->assertStringContainsString("'unsafe-eval'", $csp);
     }
 }
