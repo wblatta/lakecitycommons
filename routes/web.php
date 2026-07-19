@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\ExchangeRequestController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::view('/news', 'home')->name('news.index');           // replaced in Task 10
 Route::view('/events', 'home')->name('events.index');       // replaced in Task 6
-Route::view('/directory', 'home')->name('directory.index'); // replaced in Task 4
+Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
 Route::view('/submit', 'home')->name('submissions.create'); // replaced in Task 8
 
 // Referral registration
