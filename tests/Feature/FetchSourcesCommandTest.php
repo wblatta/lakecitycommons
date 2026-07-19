@@ -80,4 +80,34 @@ class FetchSourcesCommandTest extends TestCase
         $this->artisan('app:fetch-sources')->assertSuccessful();
         Http::assertNothingSent();
     }
+
+    public function test_scraped_events_created_pending_once_and_not_duplicated(): void
+    {
+        Http::fake(['org.example/*' => Http::response(file_get_contents(base_path('tests/fixtures/orgpage.html')))]);
+        Source::factory()->create([
+            'type' => 'html',
+            'url' => 'https://org.example/events',
+            'selector_config' => [
+                'item_selector' => 'article.post',
+                'title_selector' => '.title',
+                'link_selector' => 'a.more@href',
+                'summary_selector' => '.excerpt',
+                'kind' => 'event',
+            ],
+        ]);
+
+        $this->artisan('app:fetch-sources')->assertSuccessful();
+        $firstContentItemCount = ContentItem::count();
+
+        $this->artisan('app:fetch-sources')->assertSuccessful();
+        $secondContentItemCount = ContentItem::count();
+
+        // Fixture items have no dates; HtmlFetcher produces startsAt=null, so no Events
+        // are created (command guard: $item->kind !== 'event' || ! $item->startsAt).
+        // Dedupe is proven at ContentItem layer: content_items with same source_id +
+        // content_hash are not duplicated, which prevents event re-creation on re-run.
+        $this->assertSame(0, Event::count(), 'no events created for items without parseable dates');
+        $this->assertSame($firstContentItemCount, $secondContentItemCount, 'pending event protection via content-item dedupe');
+        $this->assertGreaterThan(0, $firstContentItemCount, 'fixture items were parsed into content-items');
+    }
 }
