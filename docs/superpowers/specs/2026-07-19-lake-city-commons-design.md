@@ -174,3 +174,7 @@ Spam control: honeypot field + rate limiting by IP (5/day). Approved event submi
 - **Editorial trust:** an AI-drafted digest with a hallucinated claim damages the site's credibility. Mitigated by mandatory human review, source links on every claim, and the `[VERIFY]` flag convention.
 - **Audience ramp:** revenue depends on consistent weekly publishing for months before sponsors sign. This is an owner-commitment risk, not a technical one; the design minimizes the weekly cost of consistency.
 - **Name collision:** unrelated "Lake City Commons" complexes exist in other states; none in Seattle. Low risk.
+
+## Amendments
+
+- **2026-07-19 (owner decision):** Newsletter delivery via Buttondown is dropped for launch. The owner sends the digest manually from their own mail client using an admin "email version" export; `posts.newsletter_sent_at` remains in the schema for future automation (listmonk self-hosted or Buttondown, revisited when list size warrants). Phase-3 reader memberships will use Stripe rather than Buttondown's paid tier. The `BUTTONDOWN_SIGNUP_URL` footer link remains config-gated and simply stays hidden while unset.
