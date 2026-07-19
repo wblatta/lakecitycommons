@@ -11,7 +11,7 @@ class Event extends Model
 
     protected $fillable = [
         'title', 'description', 'starts_at', 'ends_at', 'location',
-        'url', 'organization_id', 'submission_id', 'status',
+        'url', 'organization_id', 'submission_id', 'status', 'source_id', 'external_uid',
     ];
 
     protected function casts(): array
@@ -22,6 +22,11 @@ class Event extends Model
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function source()
+    {
+        return $this->belongsTo(Source::class);
     }
 
     public function scopeApproved($query)
