@@ -1,4 +1,6 @@
-# OlyHillsHub
+# Lake City Commons
+
+Public neighborhood news & community site for Lake City, Seattle. The original OlyHillsHub time-banking/item-sharing platform remains in the codebase behind `FEATURE_COMMUNITY`.
 
 A hyper-local neighborhood community platform combining time banking with item sharing. Members exchange skills and lend or gift items using a hybrid credit system. Referral-only to preserve community trust.
 

@@ -92,9 +92,9 @@ class AuditLogTest extends TestCase
         $admin = User::factory()->create(['status' => 'active', 'role' => 'admin']);
 
         $this->actingAs($admin)->post('/admin/posts', [
-            'title'     => 'Test Post',
-            'body'      => 'Some body content.',
-            'published' => false,
+            'title'  => 'Test Post',
+            'body'   => 'Some body content.',
+            'status' => 'draft',
         ]);
 
         $log = AdminAuditLog::where('action', 'post_create')->first();

@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'referral' => EnsureReferralToken::class,
             'admin' => AdminOnly::class,
             'active' => EnsureActiveUser::class,
+            'feature' => \App\Http\Middleware\EnsureFeatureEnabled::class,
         ]);
 
         $middleware->appendToGroup('web', EnsureActiveUser::class);

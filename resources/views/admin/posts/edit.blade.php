@@ -31,22 +31,20 @@
                 @error('body')<p class="text-red-600 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
 
+            <div>
+                <x-input-label for="status" value="Status" />
+                <select id="status" name="status" class="mt-1 block w-full rounded-md border-forest-pale">
+                    @foreach (\App\Models\Post::STATUSES as $status)
+                        <option value="{{ $status }}" @selected(old('status', $post->status ?? 'draft') === $status)>{{ ucfirst($status) }}</option>
+                    @endforeach
+                </select>
+                @error('status')<p class="text-red-600 text-xs mt-1">{{ $message }}</p>@enderror
+            </div>
+
             <div class="flex items-center gap-3 pt-2 border-t border-cream">
-                @if($post->isPublished())
-                    <button type="submit" name="published" value="1" class="btn-primary px-5 py-2.5 text-sm">
-                        Save Changes
-                    </button>
-                    <button type="submit" name="published" value="0" class="btn-outline px-5 py-2.5 text-sm">
-                        Unpublish (save as draft)
-                    </button>
-                @else
-                    <button type="submit" name="published" value="1" class="btn-primary px-5 py-2.5 text-sm">
-                        Publish Now
-                    </button>
-                    <button type="submit" name="published" value="0" class="btn-outline px-5 py-2.5 text-sm">
-                        Save as Draft
-                    </button>
-                @endif
+                <button type="submit" class="btn-primary px-5 py-2.5 text-sm">
+                    Save Changes
+                </button>
             </div>
         </form>
 

@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'buttondown' => [
+        'signup_url' => env('BUTTONDOWN_SIGNUP_URL'),
+    ],
+
 ];

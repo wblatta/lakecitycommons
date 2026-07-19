@@ -23,16 +23,17 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'     => 'required|string|max:255',
-            'body'      => 'required|string',
-            'published' => 'boolean',
+            'title'  => 'required|string|max:255',
+            'body'   => 'required|string',
+            'status' => 'required|in:' . implode(',', Post::STATUSES),
         ]);
 
         $post = Post::create([
             'user_id'      => $request->user()->id,
             'title'        => $data['title'],
             'body'         => $data['body'],
-            'published_at' => $request->boolean('published') ? now() : null,
+            'status'       => $data['status'],
+            'published_at' => $data['status'] === 'published' ? now() : null,
         ]);
 
         AdminAuditLog::create([
@@ -43,7 +44,7 @@ class PostController extends Controller
         ]);
 
         return redirect()->route('admin.posts.index')
-            ->with('success', 'Post ' . ($request->boolean('published') ? 'published' : 'saved as draft') . '.');
+            ->with('success', 'Post ' . ($data['status'] === 'published' ? 'published' : 'saved as ' . $data['status']) . '.');
     }
 
     public function edit(Post $post)
@@ -54,17 +55,16 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $data = $request->validate([
-            'title'     => 'required|string|max:255',
-            'body'      => 'required|string',
-            'published' => 'boolean',
+            'title'  => 'required|string|max:255',
+            'body'   => 'required|string',
+            'status' => 'required|in:' . implode(',', Post::STATUSES),
         ]);
 
         $post->update([
             'title'        => $data['title'],
             'body'         => $data['body'],
-            'published_at' => $request->boolean('published')
-                ? ($post->published_at ?? now())
-                : null,
+            'status'       => $data['status'],
+            'published_at' => $data['status'] === 'published' ? ($post->published_at ?? now()) : null,
         ]);
 
         return redirect()->route('admin.posts.index')->with('success', 'Post updated.');
