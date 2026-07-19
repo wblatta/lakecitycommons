@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdminAuditLog;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -84,5 +85,33 @@ class PostController extends Controller
         ]);
 
         return back()->with('success', 'Post deleted.');
+    }
+
+    public function publish(Request $request, Post $post)
+    {
+        $post->update([
+            'status' => 'published',
+            'published_at' => $post->published_at ?? now(),
+        ]);
+
+        AdminAuditLog::create([
+            'admin_id' => $request->user()->id,
+            'action' => 'post_publish',
+            'payload' => ['post_id' => $post->id, 'title' => $post->title],
+            'ip_address' => $request->ip(),
+        ]);
+
+        return redirect()->route('admin.posts.index')
+            ->with('success', 'Post published. Use "Email version" to copy it into your mail client.');
+    }
+
+    public function email(Post $post)
+    {
+        $html = Str::markdown($post->body, [
+            'html_input' => 'escape',
+            'allow_unsafe_links' => false,
+        ]);
+
+        return view('admin.posts.email', compact('post', 'html'));
     }
 }

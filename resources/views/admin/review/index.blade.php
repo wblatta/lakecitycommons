@@ -19,6 +19,21 @@
             </div>
         @endif
 
+        @if ($digestDraft)
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="font-semibold">{{ $digestDraft->title }}</h3>
+                        <p class="text-sm text-earth-muted">Created {{ $digestDraft->created_at->diffForHumans() }}</p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <a href="{{ route('admin.posts.edit', $digestDraft) }}" class="text-xs font-medium text-forest hover:underline">Edit draft</a>
+                        <a href="{{ route('admin.posts.email', $digestDraft) }}" class="text-xs font-medium text-forest hover:underline">Email version</a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <h1 class="font-display text-2xl text-forest mb-6">Review Queue</h1>
 
         <h2 class="font-display text-lg text-forest mb-3">Submissions ({{ $submissions->count() }})</h2>

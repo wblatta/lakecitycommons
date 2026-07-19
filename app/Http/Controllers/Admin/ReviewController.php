@@ -16,8 +16,9 @@ class ReviewController extends Controller
         $submissions = Submission::where('status', 'pending')->latest()->get();
         $pendingEvents = Event::where('status', 'pending')->orderBy('starts_at')->get();
         $failingSources = Source::active()->where('consecutive_failures', '>=', 2)->get();
+        $digestDraft = \App\Models\Post::whereIn('status', ['draft', 'review'])->latest()->first();
 
-        return view('admin.review.index', compact('submissions', 'pendingEvents', 'failingSources'));
+        return view('admin.review.index', compact('submissions', 'pendingEvents', 'failingSources', 'digestDraft'));
     }
 
     public function approveSubmission(Request $request, Submission $submission)

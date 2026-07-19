@@ -35,9 +35,22 @@
                             </p>
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">
+                            @if($post->status !== 'published')
+                                <form method="POST" action="{{ route('admin.posts.publish', $post) }}"
+                                      onsubmit="return confirm('Publish this post?')" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="text-xs font-medium text-green-600 hover:text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-50 transition-colors">
+                                        Publish
+                                    </button>
+                                </form>
+                            @endif
                             <a href="{{ route('admin.posts.edit', $post) }}"
                                class="text-xs font-medium text-earth-muted hover:text-forest px-3 py-1.5 rounded-lg hover:bg-forest-pale/50 transition-colors">
                                 Edit
+                            </a>
+                            <a href="{{ route('admin.posts.email', $post) }}"
+                               class="text-xs font-medium text-earth-muted hover:text-forest px-3 py-1.5 rounded-lg hover:bg-forest-pale/50 transition-colors">
+                                Email version
                             </a>
                             <form method="POST" action="{{ route('admin.posts.destroy', $post) }}"
                                   onsubmit="return confirm('Delete this post?')">

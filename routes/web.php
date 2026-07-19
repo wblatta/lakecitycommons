@@ -92,6 +92,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/members/{user}/adjust-credits', [AdminMemberController::class, 'adjustCredits'])->name('members.credits');
 
     Route::resource('posts', AdminPostController::class)->except(['show']);
+    Route::post('/posts/{post}/publish', [AdminPostController::class, 'publish'])->name('posts.publish');
+    Route::get('/posts/{post}/email', [AdminPostController::class, 'email'])->name('posts.email');
     Route::resource('organizations', \App\Http\Controllers\Admin\OrganizationController::class)->except(['show']);
     Route::resource('sources', SourceController::class)->except(['show']);
     Route::get('/audit-log', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log.index');
