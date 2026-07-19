@@ -29,4 +29,16 @@ class ConfigCheckTest extends TestCase
 
         $this->artisan('config:check')->assertExitCode(0);
     }
+
+    public function test_pipeline_service_config_is_defined(): void
+    {
+        config(['services.anthropic.model' => null]);
+        $this->assertNull(config('services.anthropic.model'));
+
+        // Reload defaults from the config file shape
+        $services = require config_path('services.php');
+        $this->assertArrayHasKey('anthropic', $services);
+        $this->assertArrayHasKey('key', $services['anthropic']);
+        $this->assertSame('claude-sonnet-5', $services['anthropic']['model'] ?? env('ANTHROPIC_MODEL', 'claude-sonnet-5'));
+    }
 }
