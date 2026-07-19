@@ -83,31 +83,35 @@ class FetchSourcesCommandTest extends TestCase
 
     public function test_scraped_events_created_pending_once_and_not_duplicated(): void
     {
-        Http::fake(['org.example/*' => Http::response(file_get_contents(base_path('tests/fixtures/orgpage.html')))]);
+        Http::fake(['data.example/*' => Http::response(file_get_contents(base_path('tests/fixtures/orgevents.json')))]);
         Source::factory()->create([
-            'type' => 'html',
-            'url' => 'https://org.example/events',
+            'type' => 'dataset',
+            'url' => 'https://data.example/events.json',
             'selector_config' => [
-                'item_selector' => 'article.post',
-                'title_selector' => '.title',
-                'link_selector' => 'a.more@href',
-                'summary_selector' => '.excerpt',
+                'items_path' => 'events',
+                'title_field' => 'name',
+                'url_field' => 'link',
+                'summary_field' => 'where',
+                'starts_at_field' => 'when',
                 'kind' => 'event',
             ],
         ]);
 
         $this->artisan('app:fetch-sources')->assertSuccessful();
         $firstContentItemCount = ContentItem::count();
+        $this->assertSame(2, Event::count(), 'both dated dataset events create pending Events on first run');
+        $this->assertSame(2, Event::where('status', 'pending')->whereNotNull('source_id')->count());
 
+        // Second run: same items re-fetched; content_item dedupe (source_id + content_hash)
+        // prevents the pending-event branch from firing again, so counts stay stable.
         $this->artisan('app:fetch-sources')->assertSuccessful();
         $secondContentItemCount = ContentItem::count();
 
-        // Fixture items have no dates; HtmlFetcher produces startsAt=null, so no Events
-        // are created (command guard: $item->kind !== 'event' || ! $item->startsAt).
-        // Dedupe is proven at ContentItem layer: content_items with same source_id +
-        // content_hash are not duplicated, which prevents event re-creation on re-run.
-        $this->assertSame(0, Event::count(), 'no events created for items without parseable dates');
-        $this->assertSame($firstContentItemCount, $secondContentItemCount, 'pending event protection via content-item dedupe');
-        $this->assertGreaterThan(0, $firstContentItemCount, 'fixture items were parsed into content-items');
+        $this->assertSame(2, Event::count(), 'pending events are not duplicated on repeat fetch');
+        $this->assertSame(2, Event::where('status', 'pending')->count());
+        $this->assertSame($firstContentItemCount, $secondContentItemCount, 'content-item dedupe stable across runs');
+
+        // Note: dateless scraped items (e.g. HtmlFetcher without starts_at_selector
+        // configured) remain content-items only and never reach the Event table.
     }
 }

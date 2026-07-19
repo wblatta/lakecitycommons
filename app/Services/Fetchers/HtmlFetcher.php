@@ -39,7 +39,15 @@ class HtmlFetcher implements SourceFetcher
                 $summary = str($node->filter($config['summary_selector'])->text(''))->squish()->limit(500)->toString();
             }
 
-            return new FetchedItem(title: $title, url: $url, summary: $summary, kind: $config['kind'] ?? 'news');
+            $startsAt = null;
+            if (! empty($config['starts_at_selector']) && $node->filter($config['starts_at_selector'])->count()) {
+                $raw = trim($node->filter($config['starts_at_selector'])->text(''));
+                if ($raw !== '') {
+                    try { $startsAt = Carbon::parse($raw); } catch (\Throwable) {}
+                }
+            }
+
+            return new FetchedItem(title: $title, url: $url, summary: $summary, kind: $config['kind'] ?? 'news', startsAt: $startsAt);
         }))->filter()->values();
     }
 }

@@ -1,0 +1,4 @@
+{"events": [
+  {"name": "Night Market", "when": "2026-08-07 17:00:00", "link": "https://org.example/night-market", "where": "Lake City Way & 127th"},
+  {"name": "Fall Festival", "when": "2026-10-03 10:00:00", "link": "https://org.example/fall-festival", "where": "Albert Davis Park"}
+]}

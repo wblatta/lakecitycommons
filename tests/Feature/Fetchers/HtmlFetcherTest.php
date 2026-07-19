@@ -34,6 +34,28 @@ class HtmlFetcherTest extends TestCase
         $this->assertSame('https://example.org/news/minutes', $items[1]->url);
     }
 
+    public function test_starts_at_selector_parses_event_time(): void
+    {
+        Http::fake(['example.org/*' => Http::response(file_get_contents(base_path('tests/fixtures/orgpage.html')))]);
+        $source = Source::factory()->create([
+            'type' => 'html',
+            'url' => 'https://example.org/news',
+            'selector_config' => [
+                'item_selector' => 'article.post',
+                'title_selector' => '.title',
+                'link_selector' => 'a.more@href',
+                'summary_selector' => '.excerpt',
+                'starts_at_selector' => '.when',
+            ],
+        ]);
+
+        $items = (new HtmlFetcher)->fetch($source);
+
+        $this->assertCount(2, $items);
+        $this->assertSame('2026-09-12 18:30', $items[0]->startsAt->format('Y-m-d H:i'));
+        $this->assertNull($items[1]->startsAt);
+    }
+
     public function test_missing_required_config_throws(): void
     {
         $source = Source::factory()->create(['type' => 'html', 'selector_config' => null]);

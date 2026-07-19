@@ -34,4 +34,27 @@ class DatasetFetcherTest extends TestCase
         $this->assertSame('New mixed-use building', $items[0]->title);
         $this->assertSame('2026-07-15', $items[0]->publishedAt->format('Y-m-d'));
     }
+
+    public function test_starts_at_field_produces_event_items(): void
+    {
+        Http::fake(['data.example/*' => Http::response(file_get_contents(base_path('tests/fixtures/orgevents.json')))]);
+        $source = Source::factory()->create([
+            'type' => 'dataset',
+            'url' => 'https://data.example/events.json',
+            'selector_config' => [
+                'items_path' => 'events',
+                'title_field' => 'name',
+                'url_field' => 'link',
+                'summary_field' => 'where',
+                'starts_at_field' => 'when',
+                'kind' => 'event',
+            ],
+        ]);
+
+        $items = (new DatasetFetcher)->fetch($source);
+
+        $this->assertCount(2, $items);
+        $this->assertSame('event', $items[0]->kind);
+        $this->assertSame('2026-08-07 17:00', $items[0]->startsAt->format('Y-m-d H:i'));
+    }
 }

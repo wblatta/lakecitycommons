@@ -29,12 +29,18 @@ class DatasetFetcher implements SourceFetcher
                 try { $publishedAt = Carbon::parse(Arr::get($record, $config['date_field'])); } catch (\Throwable) {}
             }
 
+            $startsAt = null;
+            if (! empty($config['starts_at_field']) && Arr::get($record, $config['starts_at_field'])) {
+                try { $startsAt = Carbon::parse(Arr::get($record, $config['starts_at_field'])); } catch (\Throwable) {}
+            }
+
             return new FetchedItem(
                 title: str($title)->limit(250)->toString(),
                 url: ! empty($config['url_field']) ? Arr::get($record, $config['url_field']) : null,
                 summary: ! empty($config['summary_field']) ? str((string) Arr::get($record, $config['summary_field']))->squish()->limit(500)->toString() : null,
                 publishedAt: $publishedAt,
                 kind: $config['kind'] ?? 'notice',
+                startsAt: $startsAt,
             );
         })->filter()->values();
     }
