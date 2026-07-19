@@ -42,6 +42,21 @@ class FetchSources extends Command
             $source->save();
         }
 
+        $failing = Source::active()
+            ->where('consecutive_failures', '>=', 2)
+            ->whereNull('failure_notified_at')
+            ->get();
+
+        if ($failing->isNotEmpty()) {
+            $admins = \App\Models\User::where('role', 'admin')->pluck('email');
+            foreach ($failing as $source) {
+                foreach ($admins as $email) {
+                    \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\SourceFailingMail($source));
+                }
+                $source->forceFill(['failure_notified_at' => now()])->save();
+            }
+        }
+
         return self::SUCCESS;
     }
 

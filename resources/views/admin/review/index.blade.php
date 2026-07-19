@@ -8,6 +8,17 @@
             </div>
         @endif
 
+        @if ($failingSources->isNotEmpty())
+            <div class="rounded-lg bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 text-sm mb-6">
+                <p class="font-semibold">Sources failing repeatedly:</p>
+                <ul class="mt-1 list-disc list-inside">
+                    @foreach ($failingSources as $failing)
+                        <li><a class="underline" href="{{ route('admin.sources.edit', $failing) }}">{{ $failing->name }}</a> — {{ $failing->consecutive_failures }} consecutive failures</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <h1 class="font-display text-2xl text-forest mb-6">Review Queue</h1>
 
         <h2 class="font-display text-lg text-forest mb-3">Submissions ({{ $submissions->count() }})</h2>

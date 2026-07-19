@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminAuditLog;
 use App\Models\Event;
+use App\Models\Source;
 use App\Models\Submission;
 use Illuminate\Http\Request;
 
@@ -14,8 +15,9 @@ class ReviewController extends Controller
     {
         $submissions = Submission::where('status', 'pending')->latest()->get();
         $pendingEvents = Event::where('status', 'pending')->orderBy('starts_at')->get();
+        $failingSources = Source::active()->where('consecutive_failures', '>=', 2)->get();
 
-        return view('admin.review.index', compact('submissions', 'pendingEvents'));
+        return view('admin.review.index', compact('submissions', 'pendingEvents', 'failingSources'));
     }
 
     public function approveSubmission(Request $request, Submission $submission)
