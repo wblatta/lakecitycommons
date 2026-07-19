@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExchangeRequestController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MessageController;
@@ -28,6 +29,8 @@ Route::get('/directory', [DirectoryController::class, 'index'])->name('directory
 Route::get('/submit', [SubmissionController::class, 'create'])->name('submissions.create');
 Route::post('/submit', [SubmissionController::class, 'store'])
     ->middleware('throttle:submissions')->name('submissions.store');
+Route::get('/feed', [FeedController::class, 'rss'])->name('feed');
+Route::get('/sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 
 // Referral registration
 Route::middleware(['feature:community', 'referral'])->group(function () {
