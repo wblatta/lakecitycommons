@@ -15,6 +15,13 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request, MessageService $messageService)
     {
+        if (! config('features.community')) {
+            if ($request->user()->role === 'admin') {
+                return redirect()->route('admin.posts.index');
+            }
+            abort(404);
+        }
+
         $user = $request->user()->load(['skills', 'items']);
 
         $recentRequests = $user->sentRequests()

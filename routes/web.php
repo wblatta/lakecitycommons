@@ -19,7 +19,7 @@ Route::get('/', function () {
 })->name('home');
 
 // Referral registration
-Route::middleware('referral')->group(function () {
+Route::middleware(['feature:community', 'referral'])->group(function () {
     Route::get('/register/{token}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
     Route::post('/register/{token}', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])
         ->middleware('throttle:5,1');
@@ -29,44 +29,46 @@ Route::middleware('referral')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    // Member profiles
-    Route::get('/users/{user}', [UserProfileController::class, 'show'])->name('users.show');
-
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Skills
-    Route::resource('skills', SkillController::class);
-    Route::patch('/skills/{skill}/toggle', [SkillController::class, 'toggle'])->name('skills.toggle');
+    Route::middleware('feature:community')->group(function () {
+        // Member profiles
+        Route::get('/users/{user}', [UserProfileController::class, 'show'])->name('users.show');
 
-    // Items
-    Route::resource('items', ItemController::class);
-    Route::patch('/items/{item}/toggle', [ItemController::class, 'toggle'])->name('items.toggle');
+        // Skills
+        Route::resource('skills', SkillController::class);
+        Route::patch('/skills/{skill}/toggle', [SkillController::class, 'toggle'])->name('skills.toggle');
 
-    // Referrals (invite)
-    Route::get('/invite', [ReferralController::class, 'index'])->name('invite.index');
-    Route::post('/invite', [ReferralController::class, 'store'])->name('invite.store');
+        // Items
+        Route::resource('items', ItemController::class);
+        Route::patch('/items/{item}/toggle', [ItemController::class, 'toggle'])->name('items.toggle');
 
-    // Exchange Requests
-    Route::resource('requests', ExchangeRequestController::class)->except(['index']);
-    Route::post('/requests/{request}/confirm', [ExchangeRequestController::class, 'confirm'])->name('requests.confirm');
-    Route::post('/requests/{request}/transition', [ExchangeRequestController::class, 'transition'])->name('requests.transition');
-    Route::get('/my-requests', [ExchangeRequestController::class, 'index'])->name('requests.index');
+        // Referrals (invite)
+        Route::get('/invite', [ReferralController::class, 'index'])->name('invite.index');
+        Route::post('/invite', [ReferralController::class, 'store'])->name('invite.store');
 
-    // Messages
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/{thread}', [MessageController::class, 'show'])->name('messages.show');
-    Route::post('/messages/{thread}', [MessageController::class, 'store'])->name('messages.store');
-    Route::get('/messages/{thread}/poll', [MessageController::class, 'poll'])
-        ->middleware('throttle:message-poll')
-        ->name('messages.poll');
-    Route::get('/messages/unread-count', [MessageController::class, 'unreadCount'])->name('messages.unread');
+        // Exchange Requests
+        Route::resource('requests', ExchangeRequestController::class)->except(['index']);
+        Route::post('/requests/{request}/confirm', [ExchangeRequestController::class, 'confirm'])->name('requests.confirm');
+        Route::post('/requests/{request}/transition', [ExchangeRequestController::class, 'transition'])->name('requests.transition');
+        Route::get('/my-requests', [ExchangeRequestController::class, 'index'])->name('requests.index');
 
-    // Waitlist
-    Route::post('/waitlist', [WaitlistController::class, 'store'])->name('waitlist.store');
-    Route::delete('/waitlist/{entry}', [WaitlistController::class, 'destroy'])->name('waitlist.destroy');
+        // Messages
+        Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+        Route::get('/messages/{thread}', [MessageController::class, 'show'])->name('messages.show');
+        Route::post('/messages/{thread}', [MessageController::class, 'store'])->name('messages.store');
+        Route::get('/messages/{thread}/poll', [MessageController::class, 'poll'])
+            ->middleware('throttle:message-poll')
+            ->name('messages.poll');
+        Route::get('/messages/unread-count', [MessageController::class, 'unreadCount'])->name('messages.unread');
+
+        // Waitlist
+        Route::post('/waitlist', [WaitlistController::class, 'store'])->name('waitlist.store');
+        Route::delete('/waitlist/{entry}', [WaitlistController::class, 'destroy'])->name('waitlist.destroy');
+    });
 });
 
 // Admin
