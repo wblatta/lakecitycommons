@@ -27,8 +27,7 @@ Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events.ics', [EventController::class, 'ics'])->name('events.ics');
 Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
 Route::get('/submit', [SubmissionController::class, 'create'])->name('submissions.create');
-Route::post('/submit', [SubmissionController::class, 'store'])
-    ->middleware('throttle:submissions')->name('submissions.store');
+Route::post('/submit', [SubmissionController::class, 'store'])->name('submissions.store');
 Route::get('/feed', [FeedController::class, 'rss'])->name('feed');
 Route::get('/sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 

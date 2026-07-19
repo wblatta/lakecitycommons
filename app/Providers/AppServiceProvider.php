@@ -24,9 +24,5 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('message-poll', function (Request $request) {
             return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
         });
-
-        RateLimiter::for('submissions', function (Request $request) {
-            return Limit::perDay(5)->by($request->ip());
-        });
     }
 }

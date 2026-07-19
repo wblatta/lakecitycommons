@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class SubmissionController extends Controller
 {
@@ -15,9 +16,17 @@ class SubmissionController extends Controller
     public function store(Request $request)
     {
         // Honeypot: real users never see or fill this field.
+        // Checked before rate limiting so bot noise never burns a
+        // shared IP's daily quota.
         if ($request->filled('website')) {
             return redirect()->route('submissions.create')
                 ->with('success', 'Thanks! Your submission is in the review queue.');
+        }
+
+        $key = 'submissions:' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            abort(429);
         }
 
         $data = $request->validate([
@@ -45,6 +54,8 @@ class SubmissionController extends Controller
             'status'          => 'pending',
             'ip_hash'         => hash('sha256', (string) $request->ip()),
         ]);
+
+        RateLimiter::hit($key, 86400); // count only stored submissions, 24h window
 
         return redirect()->route('submissions.create')
             ->with('success', 'Thanks! Your submission is in the review queue.');

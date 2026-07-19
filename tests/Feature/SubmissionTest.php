@@ -78,12 +78,23 @@ class SubmissionTest extends TestCase
 
     public function test_rate_limited_after_five_per_day(): void
     {
-        RateLimiter::clear('submissions');
         for ($i = 0; $i < 5; $i++) {
             $this->post('/submit', $this->validEventPayload(['title' => "Event {$i}"]));
         }
 
         $this->post('/submit', $this->validEventPayload(['title' => 'One Too Many']))
             ->assertStatus(429);
+    }
+
+    public function test_honeypot_hits_do_not_consume_quota(): void
+    {
+        for ($i = 0; $i < 6; $i++) {
+            $this->post('/submit', $this->validEventPayload(['website' => 'http://spam.example']));
+        }
+
+        $this->post('/submit', $this->validEventPayload(['title' => 'Legit After Bots']))
+            ->assertRedirect();
+
+        $this->assertEquals(1, Submission::count());
     }
 }
