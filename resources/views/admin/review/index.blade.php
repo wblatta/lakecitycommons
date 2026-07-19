@@ -28,6 +28,11 @@
                                     No date provided
                                 @endif
                             </p>
+                            @if (!empty($submission->event_fields['url']))
+                                <p class="text-sm mt-1">
+                                    <span class="text-xs text-earth-muted break-all">{{ $submission->event_fields['url'] }}</span>
+                                </p>
+                            @endif
                         @endif
                     </div>
                     <div class="flex gap-2 shrink-0">

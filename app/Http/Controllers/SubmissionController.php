@@ -28,7 +28,7 @@ class SubmissionController extends Controller
             'body'            => 'required|string|max:5000',
             'starts_at'       => 'required_if:type,event|nullable|date|after:now',
             'location'        => 'nullable|string|max:255',
-            'url'             => 'nullable|url|max:255',
+            'url'             => 'nullable|url:http,https|max:255',
         ]);
 
         Submission::create([

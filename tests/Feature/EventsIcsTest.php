@@ -28,6 +28,18 @@ class EventsIcsTest extends TestCase
         $this->assertStringContainsString('SUMMARY:Movie Night\; Park Edition', $content);
         $this->assertStringContainsString('UID:event-' . $event->id . '@lakecitycommons.org', $content);
         $this->assertStringNotContainsString('Hidden Pending', $content);
+        $this->assertStringEndsWith("END:VCALENDAR\r\n", $content);
+    }
+
+    public function test_ics_converts_local_time_to_utc(): void
+    {
+        $event = \App\Models\Event::factory()->create([
+            'starts_at' => \Carbon\Carbon::parse('2026-08-01 19:00:00', config('app.timezone')),
+        ]);
+
+        $content = $this->get('/events.ics')->getContent();
+        // 7 PM PDT (UTC-7) on Aug 1 = 02:00 UTC Aug 2
+        $this->assertStringContainsString('DTSTART:20260802T020000Z', $content);
     }
 
     public function test_events_beyond_90_days_excluded(): void

@@ -69,6 +69,13 @@ class SubmissionTest extends TestCase
         $this->assertEquals(0, Submission::count());
     }
 
+    public function test_javascript_scheme_url_rejected(): void
+    {
+        $this->post('/submit', $this->validEventPayload([
+            'url' => 'javascript://x/%0aalert(1)',
+        ]))->assertSessionHasErrors('url');
+    }
+
     public function test_rate_limited_after_five_per_day(): void
     {
         RateLimiter::clear('submissions');

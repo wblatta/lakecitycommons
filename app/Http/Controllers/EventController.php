@@ -79,7 +79,7 @@ class EventController extends Controller
 
         $lines[] = 'END:VCALENDAR';
 
-        return response(implode("\r\n", $lines), 200, [
+        return response(implode("\r\n", $lines) . "\r\n", 200, [
             'Content-Type' => 'text/calendar; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="lake-city-commons.ics"',
         ]);

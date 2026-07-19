@@ -71,7 +71,7 @@ class OrganizationController extends Controller
             'name'         => 'required|string|max:255',
             'category'     => 'required|in:' . implode(',', Organization::CATEGORIES),
             'description'  => 'nullable|string|max:5000',
-            'website'      => 'nullable|url|max:255',
+            'website'      => 'nullable|url:http,https|max:255',
             'email'        => 'nullable|email|max:255',
             'phone'        => 'nullable|string|max:40',
             'address'      => 'nullable|string|max:255',
