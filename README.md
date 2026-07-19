@@ -112,6 +112,94 @@ See the deployment checklist in `PLAN.md`. Key steps:
 
 Run `./backup.sh` to dump the database and item photos to `~/olyhillshub-backups/`. See `RESTORE.md` (local only, gitignored) for restore procedure.
 
+## Production: weekly pipeline
+
+Lake City Commons runs a weekly content digest pipeline on a cron schedule. No newsletter service is configured — the owner reviews and publishes drafts manually, then exports the digest to send via email.
+
+### Cron Setup (DreamHost)
+
+Add a single entry to your `crontab -e`:
+
+```
+* * * * * cd $HOME/lakecitycommons.com && /usr/local/php84/bin/php artisan schedule:run >> /dev/null 2>&1
+```
+
+**Note:** Use `which php` over SSH to confirm the PHP 8.4 binary path on your host. The cron entry runs every minute; Laravel's scheduler filters it down to the correct times for each command.
+
+### Environment Variables
+
+The pipeline requires:
+
+- **`ANTHROPIC_API_KEY`** (required) — Obtain from [console.anthropic.com](https://console.anthropic.com). The digest drafter uses Claude to generate human-readable summaries from raw content. **Graceful degradation:** if the key is missing or the API call fails, the pipeline falls back to a raw bulleted list, still producing a reviewable draft.
+- **`ANTHROPIC_MODEL`** (optional) — Defaults to `claude-sonnet-5`. Only change if you want to use a different Claude model for drafting.
+
+### Weekly Rhythm
+
+| Day | Time | What Happens |
+|---|---|---|
+| Friday | 22:00 | `app:fetch-sources` runs — pulls all active sources (RSS, HTML, ICS, datasets) and stores new content items |
+| Saturday | 06:00 | `app:draft-digest` runs — draftees Claude to summarize the week's content into a review-ready post |
+| Saturday+ | Manual | Visit `/admin/review` to review the draft post. Approve and publish when ready. |
+| After publish | Manual | Navigate to the post and click "Email version" to open a plain-text view. Copy and paste into your mail client to send to subscribers. |
+
+### Adding a Source
+
+Admin panel → **Sources** → **Create**. Fill in:
+
+- **Name** — Display name (e.g., "Enjoy Lake City")
+- **URL** — Feed or API endpoint
+- **Type** — One of: `rss`, `ics`, `html`, or `dataset`
+- **Organization** — Link to an organization in the directory (optional)
+- **Active** — Toggle to enable/disable fetching
+
+The `selector_config` JSON depends on the source type:
+
+#### HTML Scraper Example
+
+For scraping event listings from an HTML page (e.g., Lake City Business Alliance event calendar):
+
+```json
+{
+  "item_selector": ".event-card",
+  "title_selector": ".event-title",
+  "link_selector": ".event-link@href",
+  "summary_selector": ".event-description",
+  "starts_at_selector": ".event-date",
+  "kind": "event"
+}
+```
+
+- `item_selector` (required) — CSS selector for each item container
+- `title_selector` (required) — CSS selector for the title within each item
+- `link_selector` (optional) — CSS selector and optional attribute (format: `selector@attr`, e.g., `a@href`). Defaults to `a@href`.
+- `summary_selector` (optional) — CSS selector for description/summary text
+- `starts_at_selector` (optional) — CSS selector for date/time; parsed with Carbon
+- `kind` (optional) — Set to `event` if these are events; defaults to `news`
+
+#### Dataset Example
+
+For a JSON API returning events (e.g., municipal or nonprofit calendar endpoint):
+
+```json
+{
+  "items_path": "data.events",
+  "title_field": "name",
+  "url_field": "website",
+  "date_field": "published_date",
+  "starts_at_field": "event_date",
+  "summary_field": "description",
+  "kind": "event"
+}
+```
+
+- `items_path` (optional) — JSON path to the array of records (e.g., `data.events`). If omitted, the root response is treated as an array.
+- `title_field` (required) — Field name for the item title
+- `url_field` (optional) — Field name for the item URL
+- `date_field` (optional) — Field name for publish date; parsed with Carbon
+- `starts_at_field` (optional) — Field name for event start time; parsed with Carbon
+- `summary_field` (optional) — Field name for description/summary
+- `kind` (optional) — Set to `event` for event records; defaults to `notice`
+
 ## Project Structure
 
 ```
