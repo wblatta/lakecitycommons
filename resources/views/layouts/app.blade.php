@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') }}@hasSection('title') — @yield('title')@endif</title>
 
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon-32.png') }}" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,9 +20,18 @@
     {{-- Desktop Top Nav --}}
     <nav class="hidden md:flex items-center justify-between px-8 py-0 bg-white border-b border-forest-pale/60 sticky top-0 z-40 shadow-sm">
         <a href="{{ config('features.community') ? route('dashboard') : url('/') }}" class="font-display text-xl font-semibold text-forest py-4 flex items-center gap-2">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5s1.5 2 3.5 2 3.5-2 3.5-2M9 9h.01M15 9h.01"/>
+            <svg class="w-7 h-7" viewBox="0 0 64 64" role="img" aria-hidden="true">
+                <circle cx="32" cy="32" r="30" fill="#1B4332"/>
+                <circle cx="44" cy="14" r="4" fill="#D4A017"/>
+                <polygon points="18,24 25,40 11,40" fill="#52B788"/>
+                <polygon points="18,31 26,48 10,48" fill="#52B788"/>
+                <rect x="16.75" y="48" width="2.5" height="4" fill="#B7E4C7"/>
+                <polygon points="46,24 53,40 39,40" fill="#52B788"/>
+                <polygon points="46,31 54,48 38,48" fill="#52B788"/>
+                <rect x="44.75" y="48" width="2.5" height="4" fill="#B7E4C7"/>
+                <polygon points="32,12 40,34 24,34" fill="#B7E4C7"/>
+                <polygon points="32,22 42,44 22,44" fill="#B7E4C7"/>
+                <rect x="30.5" y="44" width="3" height="6" fill="#F8F9F4"/>
             </svg>
             {{ config('app.name') }}
         </a>
