@@ -23,10 +23,15 @@ class ReviewController extends Controller
         abort_unless($submission->status === 'pending', 404);
 
         if ($submission->type === 'event') {
+            $startsAt = $submission->event_fields['starts_at'] ?? null;
+            if (! $startsAt) {
+                return back()->with('error', 'This event submission has no date — reject it instead.');
+            }
+
             Event::create([
                 'title'         => $submission->title,
                 'description'   => $submission->body,
-                'starts_at'     => $submission->event_fields['starts_at'],
+                'starts_at'     => $startsAt,
                 'location'      => $submission->event_fields['location'] ?? null,
                 'url'           => $submission->event_fields['url'] ?? null,
                 'submission_id' => $submission->id,

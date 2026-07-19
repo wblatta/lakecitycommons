@@ -97,4 +97,35 @@ class ReviewQueueTest extends TestCase
 
         $this->actingAs($member)->get('/admin/review')->assertForbidden();
     }
+
+    public function test_approving_event_submission_without_date_fails_gracefully(): void
+    {
+        $submission = Submission::factory()->create([
+            'type' => 'event',
+            'event_fields' => ['location' => 'Somewhere', 'url' => null],
+        ]);
+
+        $this->actingAs($this->admin())
+            ->from('/admin/review')
+            ->post("/admin/review/submissions/{$submission->id}/approve")
+            ->assertRedirect('/admin/review')
+            ->assertSessionHas('error');
+
+        $this->assertEquals('pending', $submission->fresh()->status);
+        $this->assertEquals(0, Event::count());
+    }
+
+    public function test_queue_renders_event_submission_without_date(): void
+    {
+        Submission::factory()->create([
+            'type' => 'event',
+            'title' => 'Dateless Event',
+            'event_fields' => ['location' => 'Somewhere', 'url' => null],
+        ]);
+
+        $this->actingAs($this->admin())->get('/admin/review')
+            ->assertOk()
+            ->assertSee('Dateless Event')
+            ->assertSee('No date provided');
+    }
 }

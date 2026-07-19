@@ -2,6 +2,12 @@
     @section('title', 'Review Queue')
 
     <div class="max-w-4xl mx-auto px-4 py-8">
+        @if(session('error'))
+            <div class="bg-red-50 border-b border-red-100 text-red-700 px-4 py-2.5 text-sm rounded-lg mb-6 font-medium">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <h1 class="font-display text-2xl text-forest mb-6">Review Queue</h1>
 
         <h2 class="font-display text-lg text-forest mb-3">Submissions ({{ $submissions->count() }})</h2>
@@ -15,8 +21,12 @@
                         <p class="text-sm mt-2 whitespace-pre-line">{{ $submission->body }}</p>
                         @if ($submission->type === 'event' && $submission->event_fields)
                             <p class="text-sm mt-1 text-forest">
-                                {{ \Carbon\Carbon::parse($submission->event_fields['starts_at'])->format('D M j, g:i A') }}
-                                @if ($submission->event_fields['location'] ?? null) · {{ $submission->event_fields['location'] }}@endif
+                                @if (!empty($submission->event_fields['starts_at']))
+                                    {{ \Carbon\Carbon::parse($submission->event_fields['starts_at'])->format('D M j, g:i A') }}
+                                    @if ($submission->event_fields['location'] ?? null) · {{ $submission->event_fields['location'] }}@endif
+                                @else
+                                    No date provided
+                                @endif
                             </p>
                         @endif
                     </div>
