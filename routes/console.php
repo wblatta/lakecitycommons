@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('app:fetch-sources')->fridays()->at('22:00');
+Schedule::command('app:draft-digest')->saturdays()->at('06:00');
