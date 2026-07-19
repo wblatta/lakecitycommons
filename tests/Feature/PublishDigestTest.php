@@ -82,6 +82,7 @@ class PublishDigestTest extends TestCase
 
     public function test_review_queue_links_pending_digest_draft(): void
     {
+        Post::factory()->create(['status' => 'review', 'title' => 'Random Op-Ed']);
         Post::factory()->create(['status' => 'review', 'title' => 'Lake City This Week — Jul 25, 2026']);
 
         $this->actingAs($this->admin())->get('/admin/review')

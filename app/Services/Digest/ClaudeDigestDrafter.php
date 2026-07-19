@@ -45,7 +45,7 @@ PROMPT;
 
         $message = $client->messages->create(
             model: (string) config('services.anthropic.model'),
-            maxTokens: 8000,
+            maxTokens: 16000,
             system: self::SYSTEM_PROMPT,
             messages: [['role' => 'user', 'content' => "Draft this week's digest from this data:\n\n" . $payload]],
         );

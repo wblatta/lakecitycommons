@@ -16,9 +16,14 @@ class DraftDigest extends Command
     protected $signature = 'app:draft-digest';
     protected $description = 'Draft the weekly digest from fresh content items into the review queue';
 
+    public const TITLE_PREFIX = 'Lake City This Week';
+
     public function handle(DigestDrafter $drafter): int
     {
-        if (Post::whereIn('status', ['draft', 'review'])->where('created_at', '>=', now()->subDays(6))->exists()) {
+        if (Post::whereIn('status', ['draft', 'review'])
+            ->where('created_at', '>=', now()->subDays(6))
+            ->where('title', 'like', self::TITLE_PREFIX . '%')
+            ->exists()) {
             $this->info('A recent unpublished digest draft already exists; skipping.');
             return self::SUCCESS;
         }
@@ -42,7 +47,7 @@ class DraftDigest extends Command
 
         Post::create([
             'user_id' => $author->id,
-            'title' => 'Lake City This Week — ' . now()->format('M j, Y'),
+            'title' => self::TITLE_PREFIX . ' — ' . now()->format('M j, Y'),
             'body' => $body,
             'status' => 'review',
         ]);

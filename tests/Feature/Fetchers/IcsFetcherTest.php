@@ -19,7 +19,7 @@ class IcsFetcherTest extends TestCase
 
         $items = (new IcsFetcher)->fetch($source);
 
-        $this->assertCount(2, $items);
+        $this->assertCount(3, $items);
         $this->assertSame('event', $items[0]->kind);
         $this->assertSame('Summer Concert in the Park', $items[0]->title);
         $this->assertSame('evt-100@example.org', $items[0]->externalUid);
@@ -27,6 +27,8 @@ class IcsFetcherTest extends TestCase
         $this->assertSame('Lake City Community Center', $items[0]->location);
         $this->assertSame('All-Day Cleanup', $items[1]->title);
         $this->assertNotNull($items[1]->startsAt); // date-only DTSTART parsed as start of day
+        $this->assertSame('Explicit DateTime Form', $items[2]->title);
+        $this->assertSame('2026-08-20 17:00', $items[2]->startsAt->utc()->format('Y-m-d H:i')); // VALUE=DATE-TIME keeps its time
     }
 
     public function test_unescapes_ics_escape_sequences_in_description(): void

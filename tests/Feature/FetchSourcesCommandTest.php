@@ -38,8 +38,20 @@ class FetchSourcesCommandTest extends TestCase
         $this->artisan('app:fetch-sources')->assertSuccessful();
         $this->artisan('app:fetch-sources')->assertSuccessful();
 
-        $this->assertEquals(2, Event::count());
-        $this->assertEquals(2, Event::where('status', 'approved')->count());
+        $this->assertEquals(3, Event::count());
+        $this->assertEquals(3, Event::where('status', 'approved')->count());
+    }
+
+    public function test_ics_utc_times_persist_as_local_wall_clock(): void
+    {
+        Http::fake(['cal.example/*' => Http::response(file_get_contents(base_path('tests/fixtures/calendar.ics')))]);
+        Source::factory()->create(['type' => 'ics', 'url' => 'https://cal.example/cal.ics']);
+
+        $this->artisan('app:fetch-sources')->assertSuccessful();
+
+        // Fixture DTSTART:20260801T020000Z == 2026-07-31 19:00 America/Los_Angeles (PDT)
+        $event = Event::where('external_uid', 'evt-100@example.org')->first();
+        $this->assertSame('2026-07-31 19:00', $event->starts_at->format('Y-m-d H:i'));
     }
 
     public function test_failure_isolated_and_counted(): void

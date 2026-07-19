@@ -58,18 +58,18 @@ class IcsFetcher implements SourceFetcher
     private static function parseIcsDate(string $value, string $params): ?Carbon
     {
         try {
-            if (str_contains($params, 'VALUE=DATE') || preg_match('/^\d{8}$/', $value)) {
+            if (preg_match('/VALUE=DATE(?!-TIME)/', $params) || preg_match('/^\d{8}$/', $value)) {
                 return Carbon::createFromFormat('Ymd', substr($value, 0, 8), config('app.timezone'))->startOfDay();
             }
             if (str_ends_with($value, 'Z')) {
-                return Carbon::createFromFormat('Ymd\THis\Z', $value, 'UTC');
+                return Carbon::createFromFormat('Ymd\THis\Z', $value, 'UTC')->setTimezone(config('app.timezone'));
             }
             // Local or TZID-qualified times: parse in the TZID when present, else app tz
             $tz = config('app.timezone');
             if (preg_match('/TZID=([^;:]+)/', $params, $m)) {
                 $tz = trim($m[1]);
             }
-            return Carbon::createFromFormat('Ymd\THis', $value, $tz);
+            return Carbon::createFromFormat('Ymd\THis', $value, $tz)->setTimezone(config('app.timezone'));
         } catch (\Throwable) {
             return null;
         }

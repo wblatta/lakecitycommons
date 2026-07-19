@@ -66,10 +66,37 @@ class DraftDigestCommandTest extends TestCase
     {
         $this->admin();
         ContentItem::factory()->create();
-        Post::factory()->create(['status' => 'review', 'created_at' => now()->subDay()]);
+        Post::factory()->create([
+            'status' => 'review',
+            'title' => 'Lake City This Week — Jul 12, 2026',
+            'created_at' => now()->subDay(),
+        ]);
 
         $this->artisan('app:draft-digest')->assertSuccessful();
         $this->assertEquals(1, Post::count());
+    }
+
+    public function test_non_digest_draft_does_not_suppress_digest(): void
+    {
+        $this->admin();
+        ContentItem::factory()->create();
+        Post::factory()->create([
+            'status' => 'review',
+            'title' => 'Random Op-Ed',
+            'created_at' => now()->subDay(),
+        ]);
+
+        $this->app->bind(DigestDrafter::class, fn () => new class implements DigestDrafter {
+            public function draft(Collection $items, Collection $events): string
+            {
+                return "## News\n\nDrafted digest.";
+            }
+        });
+
+        $this->artisan('app:draft-digest')->assertSuccessful();
+
+        $this->assertEquals(2, Post::count());
+        $this->assertTrue(Post::where('title', 'like', \App\Console\Commands\DraftDigest::TITLE_PREFIX . '%')->exists());
     }
 
     public function test_skips_when_nothing_to_report(): void
