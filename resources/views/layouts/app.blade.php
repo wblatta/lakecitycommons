@@ -86,6 +86,10 @@
                            class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.organizations.*') ? 'text-forest font-semibold' : '' }}">
                             Organizations
                         </a>
+                        <a href="{{ route('admin.sources.index') }}"
+                           class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.sources.*') ? 'text-forest font-semibold' : '' }}">
+                            Sources
+                        </a>
                     </div>
                 </div>
             @endif

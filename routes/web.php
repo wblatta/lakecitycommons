@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\SourceController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
@@ -92,6 +93,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::resource('posts', AdminPostController::class)->except(['show']);
     Route::resource('organizations', \App\Http\Controllers\Admin\OrganizationController::class)->except(['show']);
+    Route::resource('sources', SourceController::class)->except(['show']);
     Route::get('/audit-log', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log.index');
 
     Route::get('/review', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('review.index');
