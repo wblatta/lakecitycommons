@@ -1,0 +1,31 @@
+<?php
+
+namespace Tests\Feature\Fetchers;
+
+use App\Models\Source;
+use App\Services\Fetchers\IcsFetcher;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
+
+class IcsFetcherTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_parses_vevents_with_folded_lines_and_all_day(): void
+    {
+        Http::fake(['example.org/*' => Http::response(file_get_contents(base_path('tests/fixtures/calendar.ics')))]);
+        $source = Source::factory()->create(['type' => 'ics', 'url' => 'https://example.org/cal.ics']);
+
+        $items = (new IcsFetcher)->fetch($source);
+
+        $this->assertCount(2, $items);
+        $this->assertSame('event', $items[0]->kind);
+        $this->assertSame('Summer Concert in the Park', $items[0]->title);
+        $this->assertSame('evt-100@example.org', $items[0]->externalUid);
+        $this->assertSame('2026-08-01 02:00:00', $items[0]->startsAt->utc()->format('Y-m-d H:i:s'));
+        $this->assertSame('Lake City Community Center', $items[0]->location);
+        $this->assertSame('All-Day Cleanup', $items[1]->title);
+        $this->assertNotNull($items[1]->startsAt); // date-only DTSTART parsed as start of day
+    }
+}
