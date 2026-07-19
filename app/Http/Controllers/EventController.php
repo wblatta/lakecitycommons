@@ -42,4 +42,51 @@ class EventController extends Controller
 
         return view('events.index', compact('eventsByDay', 'organizations'));
     }
+
+    public function ics()
+    {
+        $events = Event::approved()
+            ->where('starts_at', '>=', now()->subDay())
+            ->where('starts_at', '<=', now()->addDays(90))
+            ->orderBy('starts_at')
+            ->get();
+
+        $lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Lake City Commons//Events//EN',
+            'CALSCALE:GREGORIAN',
+            'X-WR-CALNAME:Lake City Commons Events',
+        ];
+
+        foreach ($events as $event) {
+            $lines[] = 'BEGIN:VEVENT';
+            $lines[] = 'UID:event-' . $event->id . '@lakecitycommons.org';
+            $lines[] = 'DTSTAMP:' . $event->updated_at->utc()->format('Ymd\THis\Z');
+            $lines[] = 'DTSTART:' . $event->starts_at->utc()->format('Ymd\THis\Z');
+            if ($event->ends_at) {
+                $lines[] = 'DTEND:' . $event->ends_at->utc()->format('Ymd\THis\Z');
+            }
+            $lines[] = 'SUMMARY:' . $this->icsEscape($event->title);
+            if ($event->location) {
+                $lines[] = 'LOCATION:' . $this->icsEscape($event->location);
+            }
+            if ($event->url) {
+                $lines[] = 'URL:' . $event->url;
+            }
+            $lines[] = 'END:VEVENT';
+        }
+
+        $lines[] = 'END:VCALENDAR';
+
+        return response(implode("\r\n", $lines), 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="lake-city-commons.ics"',
+        ]);
+    }
+
+    private function icsEscape(string $text): string
+    {
+        return str_replace(["\\", ";", ",", "\n"], ["\\\\", "\\;", "\\,", "\\n"], $text);
+    }
 }

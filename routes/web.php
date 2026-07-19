@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::view('/news', 'home')->name('news.index');           // replaced in Task 10
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
-Route::get('/events.ics', fn () => abort(404))->name('events.ics'); // replaced in Task 7
+Route::get('/events.ics', [EventController::class, 'ics'])->name('events.ics');
 Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
 Route::view('/submit', 'home')->name('submissions.create'); // replaced in Task 8
 
