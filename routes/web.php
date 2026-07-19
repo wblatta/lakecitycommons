@@ -12,6 +12,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +23,9 @@ Route::view('/news', 'home')->name('news.index');           // replaced in Task 
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events.ics', [EventController::class, 'ics'])->name('events.ics');
 Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
-Route::view('/submit', 'home')->name('submissions.create'); // replaced in Task 8
+Route::get('/submit', [SubmissionController::class, 'create'])->name('submissions.create');
+Route::post('/submit', [SubmissionController::class, 'store'])
+    ->middleware('throttle:submissions')->name('submissions.store');
 
 // Referral registration
 Route::middleware(['feature:community', 'referral'])->group(function () {
