@@ -34,4 +34,21 @@ class PublicSiteTest extends TestCase
         $response->assertSee('Directory');
         $response->assertSee('Submit');
     }
+
+    public function test_homepage_shows_latest_posts_and_upcoming_events(): void
+    {
+        \App\Models\Post::factory()->published()->create(['title' => 'Fresh Digest']);
+        \App\Models\Event::factory()->create(['title' => 'Saturday Market', 'starts_at' => now()->addDays(2)]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Fresh Digest');
+        $response->assertSee('Saturday Market');
+    }
+
+    public function test_homepage_handles_empty_state(): void
+    {
+        $this->get('/')->assertOk()->assertSee('Lake City Commons');
+    }
 }

@@ -66,6 +66,14 @@
                            class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.posts.*') ? 'text-forest font-semibold' : '' }}">
                             News Posts
                         </a>
+                        <a href="{{ route('admin.review.index') }}"
+                           class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.review.*') ? 'text-forest font-semibold' : '' }}">
+                            Review
+                        </a>
+                        <a href="{{ route('admin.organizations.index') }}"
+                           class="block px-4 py-2 text-sm text-earth hover:bg-cream hover:text-forest transition-colors {{ request()->routeIs('admin.organizations.*') ? 'text-forest font-semibold' : '' }}">
+                            Organizations
+                        </a>
                     </div>
                 </div>
             @endif

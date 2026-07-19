@@ -16,4 +16,29 @@
             <a href="{{ route('events.index') }}" class="px-5 py-2.5 rounded-lg border border-forest text-forest font-medium">See events</a>
         </div>
     </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mt-4">
+        <section>
+            <h2 class="font-display text-xl text-forest mb-4">Latest news</h2>
+            @forelse ($posts as $post)
+                <article class="bg-white rounded-lg p-4 shadow-sm mb-3">
+                    <h3 class="font-semibold"><a class="text-forest" href="{{ route('news.show', $post) }}">{{ $post->title }}</a></h3>
+                    <p class="text-xs text-earth-muted mt-1">{{ $post->published_at->format('F j, Y') }}</p>
+                </article>
+            @empty
+                <p class="text-sm text-earth-muted">First digest coming soon.</p>
+            @endforelse
+        </section>
+        <section>
+            <h2 class="font-display text-xl text-forest mb-4">Coming up</h2>
+            @forelse ($events as $event)
+                <div class="bg-white rounded-lg p-4 shadow-sm mb-3">
+                    <h3 class="font-semibold">{{ $event->title }}</h3>
+                    <p class="text-xs text-earth-muted mt-1">{{ $event->starts_at->format('D M j, g:i A') }}@if($event->location) · {{ $event->location }}@endif</p>
+                </div>
+            @empty
+                <p class="text-sm text-earth-muted">No events yet — <a class="text-forest underline" href="{{ route('submissions.create') }}">submit one</a>.</p>
+            @endforelse
+        </section>
+    </div>
 @endsection
