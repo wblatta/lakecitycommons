@@ -1,0 +1,4 @@
+{"results": [
+  {"description": "New mixed-use building", "permit_url": "https://permits.example/1", "issued": "2026-07-15", "address": "12345 Lake City Way NE"},
+  {"description": "Deck addition", "permit_url": "https://permits.example/2", "issued": "2026-07-16", "address": "2200 NE 125th St"}
+]}
