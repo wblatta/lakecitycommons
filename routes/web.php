@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExchangeRequestController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
@@ -13,10 +14,12 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WaitlistController;
 use Illuminate\Support\Facades\Route;
 
-// Landing / public
-Route::get('/', function () {
-    return auth()->check() ? redirect()->route('dashboard') : view('welcome');
-})->name('home');
+// Public site
+Route::get('/', HomeController::class)->name('home');
+Route::view('/news', 'home')->name('news.index');           // replaced in Task 10
+Route::view('/events', 'home')->name('events.index');       // replaced in Task 6
+Route::view('/directory', 'home')->name('directory.index'); // replaced in Task 4
+Route::view('/submit', 'home')->name('submissions.create'); // replaced in Task 8
 
 // Referral registration
 Route::middleware(['feature:community', 'referral'])->group(function () {

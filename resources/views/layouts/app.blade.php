@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'OlyHillsHub') }}@hasSection('title') — @yield('title')@endif</title>
+    <title>{{ config('app.name') }}@hasSection('title') — @yield('title')@endif</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 14.5s1.5 2 3.5 2 3.5-2 3.5-2M9 9h.01M15 9h.01"/>
             </svg>
-            OlyHillsHub
+            {{ config('app.name') }}
         </a>
 
         <div class="flex items-center gap-1 h-full text-sm font-medium">
