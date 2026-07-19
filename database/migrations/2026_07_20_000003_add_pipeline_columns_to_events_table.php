@@ -19,7 +19,7 @@ return new class extends Migration
     {
         Schema::table('events', function (Blueprint $table) {
             $table->dropUnique(['source_id', 'external_uid']);
-            $table->dropForeignKey(['source_id']);
+            $table->dropForeign(['source_id']);
             $table->dropColumn(['source_id', 'external_uid']);
         });
     }

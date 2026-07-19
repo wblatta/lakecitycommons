@@ -17,7 +17,7 @@ class ContentItemFactory extends Factory
             'url' => fake()->url(),
             'title' => fake()->sentence(6),
             'summary' => fake()->paragraph(),
-            'content_hash' => hash('sha256', fake()->unique()->sentence()),
+            'content_hash' => hash('sha256', (string) \Illuminate\Support\Str::uuid()),
             'kind' => 'news',
             'published_at' => now()->subDays(2),
             'fetched_at' => now(),
