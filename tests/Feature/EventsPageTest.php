@@ -54,4 +54,9 @@ class EventsPageTest extends TestCase
     {
         $this->get('/events?view=month&month=garbage')->assertOk()->assertSee(now()->format('F Y'));
     }
+
+    public function test_out_of_range_month_param_falls_back_to_current_month(): void
+    {
+        $this->get('/events?view=month&month=2026-13')->assertOk()->assertSee(now()->format('F Y'));
+    }
 }

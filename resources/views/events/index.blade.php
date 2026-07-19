@@ -28,7 +28,7 @@
                 @foreach ($events as $event)
                     <div class="bg-white rounded-lg p-4 shadow-sm">
                         <div class="flex items-baseline justify-between gap-4">
-                            <h3 class="font-semibold">{{ $event->url ? '' : '' }}@if($event->url)<a class="text-forest" href="{{ $event->url }}" rel="noopener">{{ $event->title }}</a>@else{{ $event->title }}@endif</h3>
+                            <h3 class="font-semibold">@if($event->url)<a class="text-forest" href="{{ $event->url }}" rel="noopener">{{ $event->title }}</a>@else{{ $event->title }}@endif</h3>
                             <span class="text-sm text-earth-muted whitespace-nowrap">{{ $event->starts_at->format('g:i A') }}</span>
                         </div>
                         @if ($event->organization)<p class="text-xs text-earth-muted mt-0.5">{{ $event->organization->name }}</p>@endif

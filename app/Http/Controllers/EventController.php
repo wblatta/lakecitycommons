@@ -20,11 +20,10 @@ class EventController extends Controller
         }
 
         if ($request->query('view') === 'month') {
-            try {
-                // Anchor to day 1: parsing 'Y-m' alone would inherit today's
-                // day-of-month and can overflow short months.
-                $month = Carbon::createFromFormat('Y-m-d', $request->query('month') . '-01')->startOfMonth();
-            } catch (\Throwable) {
+            $raw = (string) $request->query('month');
+            if (preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $raw)) {
+                $month = Carbon::createFromFormat('Y-m-d', $raw . '-01')->startOfMonth();
+            } else {
                 $month = now()->startOfMonth();
             }
             $gridStart = $month->copy()->startOfWeek(Carbon::SUNDAY);
