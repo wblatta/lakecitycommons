@@ -13,8 +13,8 @@ class IcsFetcher implements SourceFetcher
     {
         $body = Http::timeout(20)->get($source->url)->throw()->body();
 
-        // Unfold: CRLF (or LF) followed by space/tab continues the previous line
-        $unfolded = preg_replace("/\r?\n([ \t])/", '$1', $body);
+        // Unfold: RFC 5545 - delete CRLF/LF and the single folding space/tab character
+        $unfolded = preg_replace("/\r?\n[ \t]/", '', $body);
         $lines = preg_split("/\r?\n/", $unfolded);
 
         $items = collect();

@@ -6,10 +6,11 @@ UID:evt-100@example.org
 DTSTAMP:20260710T000000Z
 DTSTART:20260801T020000Z
 DTEND:20260801T040000Z
-SUMMARY:Summer Concert in the
- Park
+SUMMARY:Summer Concert in the Pa
+ rk
 LOCATION:Lake City Community Center
 URL:https://example.org/concert
+DESCRIPTION:Live music\, food trucks\; bring chairs.\nAll ages
 END:VEVENT
 BEGIN:VEVENT
 UID:evt-101@example.org

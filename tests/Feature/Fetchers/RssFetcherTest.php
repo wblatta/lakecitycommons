@@ -41,4 +41,13 @@ class RssFetcherTest extends TestCase
         $this->expectException(\Illuminate\Http\Client\RequestException::class);
         (new RssFetcher)->fetch($source);
     }
+
+    public function test_unparseable_feed_throws(): void
+    {
+        Http::fake(['example.org/*' => Http::response('this is not xml at all <<<')]);
+        $source = Source::factory()->create(['type' => 'rss', 'url' => 'https://example.org/feed.xml']);
+
+        $this->expectException(\RuntimeException::class);
+        (new RssFetcher)->fetch($source);
+    }
 }

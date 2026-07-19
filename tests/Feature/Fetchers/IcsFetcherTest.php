@@ -28,4 +28,15 @@ class IcsFetcherTest extends TestCase
         $this->assertSame('All-Day Cleanup', $items[1]->title);
         $this->assertNotNull($items[1]->startsAt); // date-only DTSTART parsed as start of day
     }
+
+    public function test_unescapes_ics_escape_sequences_in_description(): void
+    {
+        Http::fake(['example.org/*' => Http::response(file_get_contents(base_path('tests/fixtures/calendar.ics')))]);
+        $source = Source::factory()->create(['type' => 'ics', 'url' => 'https://example.org/cal.ics']);
+
+        $items = (new IcsFetcher)->fetch($source);
+
+        // unescape() restores , ; and newline; the fetcher then squishes whitespace
+        $this->assertSame('Live music, food trucks; bring chairs. All ages', $items[0]->summary);
+    }
 }
