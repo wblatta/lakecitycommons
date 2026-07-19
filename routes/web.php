@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\EventController;
@@ -89,6 +90,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::resource('posts', AdminPostController::class)->except(['show']);
     Route::resource('organizations', \App\Http\Controllers\Admin\OrganizationController::class)->except(['show']);
     Route::get('/audit-log', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-log.index');
+
+    Route::get('/review', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('review.index');
+    Route::post('/review/submissions/{submission}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approveSubmission'])->name('review.submissions.approve');
+    Route::post('/review/submissions/{submission}/reject', [\App\Http\Controllers\Admin\ReviewController::class, 'rejectSubmission'])->name('review.submissions.reject');
+    Route::post('/review/events/{event}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approveEvent'])->name('review.events.approve');
+    Route::post('/review/events/{event}/reject', [\App\Http\Controllers\Admin\ReviewController::class, 'rejectEvent'])->name('review.events.reject');
 });
 
 require __DIR__.'/auth.php';
