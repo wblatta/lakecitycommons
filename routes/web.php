@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 // Public site
 Route::get('/', HomeController::class)->name('home');
-Route::view('/news', 'home')->name('news.index');           // replaced in Task 10
+Route::get('/news', [\App\Http\Controllers\NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{post:slug}', [\App\Http\Controllers\NewsController::class, 'show'])->name('news.show');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events.ics', [EventController::class, 'ics'])->name('events.ics');
 Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
