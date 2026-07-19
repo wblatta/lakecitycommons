@@ -1896,3 +1896,7 @@ Route::get('/posts/{post}/email', [AdminPostController::class, 'email'])->name('
 ## Deferred (Plan 3 / later)
 
 Newsletter automation (listmonk self-hosted or Buttondown — revisit when the subscriber list outgrows manual sending; `posts.newsletter_sent_at` is already in the schema), a public "get the digest by email" signup capture (until then the site invites readers to email the owner), reader memberships (Stripe/Cashier), sponsor ad slots, unhiding `FEATURE_COMMUNITY`, homepage hero photo (needs user-supplied photography), RFC 5545 line folding + remaining Plan-1 review minors (tracked in PR #1 body).
+
+## Execution amendments
+
+- **2026-07-19 (controller adjudication during Task 6 review):** The plan's fetcher specs omitted event-date extraction for scraped sources, making the fetch command's pending-event branch dead code. Amended: `DatasetFetcher` supports optional `starts_at_field` and `HtmlFetcher` supports optional `starts_at_selector` in `selector_config` (Carbon-parsed, null on failure). Scraped/dataset items with `kind=event` AND a parsed start date become `status=pending` events (deduped across runs via content_items); dateless event-kind items remain content-items only. Covered by tests in DatasetFetcherTest, HtmlFetcherTest, and FetchSourcesCommandTest.
