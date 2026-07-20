@@ -39,6 +39,9 @@
             </div>
         </section>
     @empty
-        <p class="text-earth-muted">No upcoming events yet — <a class="text-forest underline" href="{{ route('submissions.create') }}">submit one</a>.</p>
+        <div class="text-center py-10">
+            @include('partials.grove-empty')
+            <p class="text-earth-muted">No upcoming events yet — <a class="text-forest underline" href="{{ route('submissions.create') }}">submit one</a>.</p>
+        </div>
     @endforelse
 @endsection

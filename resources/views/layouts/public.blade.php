@@ -54,7 +54,8 @@
         @yield('content')
     </main>
 
-    <footer class="border-t border-forest-pale/60 bg-white mt-16">
+    <div class="mt-16">@include('partials.grove-treeline')</div>
+    <footer class="border-t border-forest-pale/60 bg-white">
         <div class="max-w-4xl mx-auto px-4 py-8 text-sm text-earth-muted space-y-2">
             <p class="font-display text-forest text-base">{{ config('app.name') }}</p>
             <p>Neighborhood news, events, and organizations for Lake City, Seattle — in one place.</p>

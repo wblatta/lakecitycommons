@@ -13,7 +13,10 @@
                 <p class="text-sm text-earth-muted mt-2">{{ \Illuminate\Support\Str::limit(strip_tags($post->body), 240) }}</p>
             </article>
         @empty
-            <p class="text-earth-muted">No posts yet — the first weekly digest is coming soon.</p>
+            <div class="text-center py-10">
+                @include('partials.grove-empty')
+                <p class="text-earth-muted">No posts yet — the first weekly digest is coming soon.</p>
+            </div>
         @endforelse
     </div>
     <div class="mt-6">{{ $posts->links() }}</div>
