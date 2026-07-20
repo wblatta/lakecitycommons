@@ -233,3 +233,5 @@ docs/
     specs/                           # Feature design documents
     plans/                           # Implementation plans
 ```
+
+> **Server PHP requirement:** `short_open_tag = Off` (set in `~/.php/8.4/phprc` on DreamHost). With short tags on, Blade mis-compiles any template containing a literal `<?xml` declaration (the RSS feed), producing a 500 or garbage first line. After changing phprc: `pkill -f php84` and clear compiled views.
